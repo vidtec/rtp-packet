@@ -21,7 +21,7 @@ public class RTPPacketTest
 	public void testCanCreateSimplePacketFromValidByteArray()
 	{
 		// PCMU with 4 samples
-		final byte[] data = { (byte)0x80, 0x00, 0x01, 0x01, 0x01, 0x02, 0x03, 0x04, 0x04, 0x03, 0x02, 0x01, 
+		final byte[] data = { (byte)0x80, 0x01, 0x01, 0x01, 0x01, 0x02, 0x03, 0x04, 0x04, 0x03, 0x02, 0x01, 
 								    0x40, 0x40, 0x40, 0x40 };
 		
 		final RTPPacket p = RTPPacket.fromByteArray(data);
@@ -35,7 +35,7 @@ public class RTPPacketTest
 		assertEquals(p.csrcIdentifiers(), new byte[0], "contributing sources should be empty[]");
 	
 		assertTrue(!p.hasMarker(), "should not have marker");
-		assertEquals(p.payloadType(), 0, "payload type should be 0");
+		assertEquals(p.payloadType(), 1, "payload type should be 1");
 		assertEquals(p.sequenceNumber(), 257, "seq. no should be 0x0101");
 		assertEquals(p.timestamp(), 16909060, "timestamp should be 0x01020304");
 		assertEquals(p.ssrcIdentifier(), 67305985, "timestamp should be 0x04030201");
@@ -99,7 +99,7 @@ public class RTPPacketTest
 	public void testCanCreatePacketFromValidByteArrayWithMarker()
 	{
 		// PCMU with 1 sample and 3 bytes padding
-		final byte[] data = { (byte)0x80, (byte)0x80, 0x01, 0x01, 0x01, 0x02, 0x03, 0x04, 0x04, 0x03, 0x02, 0x01, 
+		final byte[] data = { (byte)0x80, (byte)0x81, 0x01, 0x01, 0x01, 0x02, 0x03, 0x04, 0x04, 0x03, 0x02, 0x01, 
 								    0x40, 0x40, 0x40, 0x40 };
 		
 		final RTPPacket p = RTPPacket.fromByteArray(data);
@@ -113,7 +113,7 @@ public class RTPPacketTest
 		assertEquals(p.csrcIdentifiers(), new byte[0], "contributing sources should be empty[]");
 	
 		assertTrue(p.hasMarker(), "should have marker");
-		assertEquals(p.payloadType(), 0, "payload type should be 0");
+		assertEquals(p.payloadType(), 1, "payload type should be 1");
 		assertEquals(p.sequenceNumber(), 257, "seq. no should be 0x0101");
 		assertEquals(p.timestamp(), 16909060, "timestamp should be 0x01020304");
 		assertEquals(p.ssrcIdentifier(), 67305985, "timestamp should be 0x04030201");
@@ -255,25 +255,11 @@ public class RTPPacketTest
 	{
 		// create a packet of max extn header size. 20 + 0xFFFF + 1
 		final byte[] data = new byte[20 + 0xFFFF + 1];
-		data[0] = (byte)0x91;
-		data[2] = (byte)0xFF;
-		data[3] = (byte)0xFF;
-		data[4] = (byte)0xFF;
-		data[5] = (byte)0xFF;
-		data[6] = (byte)0xFF;
-		data[7] = (byte)0xFF;
-		data[8] = (byte)0xFF;
-		data[9] = (byte)0xFF;
-		data[10] = (byte)0xFF;
-		data[11] = (byte)0xFF;
-		data[12] = (byte)0xFF;
-		data[13] = (byte)0xFF;
-		data[14] = (byte)0xFF;
-		data[15] = (byte)0xFF;
-		data[16] = (byte)0xFF;
-		data[17] = (byte)0xFF;
-		data[18] = (byte)0xFF;
-		data[19] = (byte)0xFF;
+		final ByteBuffer bb = ByteBuffer.wrap(data);
+		bb.put((byte)0x91).put((byte)0x7F).putShort((short)0xFFFF).putInt(0xFFFFFFFF).putInt(0xFFFFFFFF);
+		bb.putInt(0xFFFFFFFF);
+		bb.putShort((short)0xFFFF).putShort((short)0xFFFF);
+		data[data.length - 1] = 0x01;
 		
 		final RTPPacket p = RTPPacket.fromByteArray(data);
 		
@@ -286,7 +272,7 @@ public class RTPPacketTest
 		assertEquals(p.csrcIdentifiers(), new long[] { 0xFFFFFFFF }, "contributing sources should be valid[]");
 	
 		assertTrue(!p.hasMarker(), "should not have marker");
-		assertEquals(p.payloadType(), 0, "payload type should be 0");
+		assertEquals(p.payloadType(), 127, "payload type should be 127");
 		assertEquals(p.sequenceNumber(), 0xFFFF, "seq. no should be 0xFFFF");
 		assertEquals(p.timestamp(), 0xFFFFFFFF, "timestamp should be 0xFFFFFFFF");
 		assertEquals(p.ssrcIdentifier(), 0xFFFFFFFF, "timestamp should be 0xFFFFFFFF");
@@ -296,18 +282,288 @@ public class RTPPacketTest
 		assertEquals(p.extensionHeaderAsByteArray(), new byte[0xFFFF] , "extn header should be set.");
 	
 		assertEquals(p.payloadLength(), 1, "payload should be 1 bytes.");
-		assertEquals(p.payloadAsByteArray(), new byte[] { 0x00 }, "invalid payload data");
-		assertEquals(p.payloadAsByteBuffer().compareTo(ByteBuffer.wrap(new byte[] { 0x00 })), 0, "invalid raw payload data");
+		assertEquals(p.payloadAsByteArray(), new byte[] { 0x01 }, "invalid payload data");
+		assertEquals(p.payloadAsByteBuffer().compareTo(ByteBuffer.wrap(new byte[] { 0x01 })), 0, "invalid raw payload data");
 
 		assertEquals(p.payloadLengthRaw(), 1, "raw payload should be 1 bytes.");
-		assertEquals(p.payloadRawAsByteArray(), new byte[] { 0x00 }, "invalid raw payload data");
+		assertEquals(p.payloadRawAsByteArray(), new byte[] { 0x01 }, "invalid raw payload data");
 
 		assertEquals(p.packetLength(), 20 + 0xFFFF + 1, "packet length should be 26 bytes.");
 		
 		assertEquals(p.asByteArray(), data, "packet data not reformed correctly.");
 	}
 	
+	
+	public void testCanCreatePacketFromUsingBuilder()
+	{
+		final byte[] data = { (byte)0xB3, (byte)0x96, 0x00, (byte)0x7B, 0x00, 0x00, 0x01, (byte)0xC8, 0x00, 0x00, 0x03, 0x15, 
+			    				0x00, 0x00, 0x00, (byte)0xAA, 0x00, 0x00, 0x00, (byte)0xBB, 0x00, 0x00, 0x00, (byte)0xCC,
+			    				0x00, (byte)0xDD, 0x00, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x00, 0x02
+			    				};
 
+		final RTPPacket p = RTPPacket.builder()
+							  .withMarker()
+				 			  .withRequiredHeaderFields(22, 123, 456, 789)	
+							  .withCsrcIdentifiers(0xAA, 0xBB, 0xCC)
+							  .withHeaderExtension(0xDD, new byte[] { 0x01, 0x02, 0x03, 0x04 })
+							  .withPayload(new byte[] { 0x01, 0x02 }, 4) /// also non version
+							  .build();
+		
+		assertEquals(p.version(), 2, "incorrect version decode.");
+		assertTrue(p.isPadded(), "should be padded");
+		assertEquals(p.paddedBytesCount(), 2, "should be padded");
+		assertTrue(p.hasExtension(), "should have extension");
+		assertTrue(p.hasCsrcs(), "should have contributing sources");
+		assertEquals(p.csrcCount(), 3, "contributing source count should be 1");
+		assertEquals(p.csrcIdentifiers(), new long[] { 0xAA, 0xBB, 0xCC }, "contributing sources should be valid[]");
+	
+		assertTrue(p.hasMarker(), "should have marker");
+		assertEquals(p.payloadType(), 22, "payload type should be 22");
+		assertEquals(p.sequenceNumber(), 123, "seq. no should be 123");
+		assertEquals(p.timestamp(), 456, "timestamp should be 456");
+		assertEquals(p.ssrcIdentifier(), 789, "timestamp should be 789");
+	
+		assertEquals(p.extensionProfile(), 0xDD, "extn prof should be set.");
+		assertEquals(p.extensionLength(), 4, "extn length should be set.");
+		assertEquals(p.extensionHeaderAsByteArray(), new byte[] { 0x01, 0x02, 0x03, 0x04 }, "extn header should be set.");
+	
+		assertEquals(p.payloadLength(), 2, "payload should be 2 bytes.");
+		assertEquals(p.payloadAsByteArray(), new byte[] { 0x01, 0x02 }, "invalid payload data");
+		assertEquals(p.payloadAsByteBuffer().compareTo(ByteBuffer.wrap(new byte[] { 0x01, 0x02 })), 0, "invalid raw payload data");
+
+		assertEquals(p.payloadLengthRaw(), 4, "raw payload should be 4 bytes.");
+		assertEquals(p.payloadRawAsByteArray(), new byte[] { 0x01, 0x02, 0x00, 0x02 }, "invalid raw payload data");
+
+		assertEquals(p.packetLength(), 36, "packet length should be 36 bytes.");
+		
+		assertEquals(p.asByteArray(), data, "packet data not reformed correctly.");
+	}
+	
+	public void testCanCreatePacketFromUsingBuilderWithBoundaryValues()
+	{
+		final RTPPacket p = RTPPacket.builder()
+							  .withMarker()
+				 			  .withRequiredHeaderFields(0x7F, 0xFFFF, 0xFFFFFFFFL, 0xFFFFFFFFL)	
+							  .withCsrcIdentifiers(1,2,3,4,5,6,7,8,9,10,11,12,13,14,0xFFFFFFFFL)
+							  .withHeaderExtension(0xFFFF, new byte[0xFFFF])
+							  .withPayload(new byte[] { 0x01 })
+							  .build();
+		
+		// create a packet of max extn header size. 20 + 0xFFFF + 1
+		final byte[] data = new byte[76 + 0xFFFF + 1];
+		final ByteBuffer bb = ByteBuffer.wrap(data);
+		bb.put((byte)0x9F).put((byte)0xFF).putShort((short)0xFFFF).putInt(0xFFFFFFFF).putInt(0xFFFFFFFF);
+		bb.putInt(1).putInt(2).putInt(3).putInt(4).putInt(5).putInt(6).putInt(7).putInt(8).putInt(9).putInt(10);
+		bb.putInt(11).putInt(12).putInt(13).putInt(14).putInt(0xFFFFFFFF);
+		bb.putShort((short)0xFFFF).putShort((short)0xFFFF);
+		data[data.length - 1] = 0x01;
+		
+		assertEquals(p.version(), 2, "incorrect version decode.");
+		assertTrue(!p.isPadded(), "should not be padded");
+		assertEquals(p.paddedBytesCount(), 0, "should not be padded");
+		assertTrue(p.hasExtension(), "should have extension");
+		assertTrue(p.hasCsrcs(), "should have contributing sources");
+		assertEquals(p.csrcCount(), 15, "contributing source count should be 1");
+		assertEquals(p.csrcIdentifiers(), new long[] { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,0xFFFFFFFFL }, "contributing sources should be valid[]");
+	
+		assertTrue(p.hasMarker(), "should have marker");
+		assertEquals(p.payloadType(), 127, "payload type should be 127");
+		assertEquals(p.sequenceNumber(), 0xFFFF, "seq. no should be 0xFFFF");
+		assertEquals(p.timestamp(), 0xFFFFFFFFL, "timestamp should be 0xFFFFFFFF");
+		assertEquals(p.ssrcIdentifier(), 0xFFFFFFFFL, "timestamp should be 0xFFFFFFFF");
+	
+		assertEquals(p.extensionProfile(), 0xFFFF, "extn prof should be set.");
+		assertEquals(p.extensionLength(), 0xFFFF, "extn length should be set.");
+		assertEquals(p.extensionHeaderAsByteArray(), new byte[0xFFFF] , "extn header should be set.");
+	
+		assertEquals(p.payloadLength(), 1, "payload should be 1 bytes.");
+		assertEquals(p.payloadAsByteArray(), new byte[] { 0x01 }, "invalid payload data");
+		assertEquals(p.payloadAsByteBuffer().compareTo(ByteBuffer.wrap(new byte[] { 0x01 })), 0, "invalid raw payload data");
+
+		assertEquals(p.payloadLengthRaw(), 1, "raw payload should be 1 bytes.");
+		assertEquals(p.payloadRawAsByteArray(), new byte[] { 0x01 }, "invalid raw payload data");
+
+		assertEquals(p.packetLength(), 76 + 0xFFFF + 1, "packet length should be 65556 bytes.");
+		
+		assertEquals(p.asByteArray(), data, "packet data not reformed correctly.");
+
+	}
+	 
+	
+	public void testCanSuccessfullyValidateAndRejectBadBuilderData()
+	{
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(-1, 123, 456, 789)	
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Expected valid payload type not -1", "wrong validation message");
+		}
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(256, 123, 456, 789)	
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Expected valid payload type not 256", "wrong validation message");
+		}
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(22, -1, 456, 789)	
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Expected valid sequence number not -1", "wrong validation message");
+		}
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(22, 0xFFFFFF, 456, 789)	
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Expected valid sequence number not 16777215", "wrong validation message");
+		}
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(22, 123, -1, 789)	
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Expected valid timestamp not -1", "wrong validation message");
+		}
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(22, 123, 0x1FFFFFFFFL, 789)	
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Expected valid timestamp not 8589934591", "wrong validation message");
+		}
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(22, 123, 456, -1)	
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Expected valid ssrcIdentifier not -1", "wrong validation message");
+		}
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(22, 123, 456, 0x1FFFFFFFFL)	
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Expected valid ssrcIdentifier not 8589934591", "wrong validation message");
+		}
+		
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(22, 123, 456, 689)
+		 			  .withCsrcIdentifiers(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17)
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Expected valid ccsrc identifiers count not 17", "wrong validation message");
+		}
+		
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(22, 123, 456, 689)
+		 			  .withHeaderExtension(1, null)
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Expected valid header not null", "wrong validation message");
+		}
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(22, 123, 456, 689)
+		 			  .withHeaderExtension(1, new byte[0x1FFFF])
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Expected valid header length not 131071", "wrong validation message");
+		}	
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(22, 123, 456, 689)
+		 			  .withHeaderExtension(-1, new byte[1])
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Expected valid extension profile not -1", "wrong validation message");
+		}		
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(22, 123, 456, 689)
+		 			  .withHeaderExtension(0xFFFFFF, new byte[1])
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Expected valid extension profile not 16777215", "wrong validation message");
+		}	
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(22, 123, 456, 689)
+		 			  .withPayload(null)
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Expected valid payload not null or empty", "wrong validation message");
+		}			
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(22, 123, 456, 689)
+		 			  .withPayload(new byte[0])
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Expected valid payload not null or empty", "wrong validation message");
+		}	
+		try
+		{
+			RTPPacket.builder()
+		 			  .withRequiredHeaderFields(22, 123, 456, 689)
+		 			  .withPayload(null, 4)
+					  .build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "cannot align to boundary of null data.", "wrong validation message");
+		}	
+	}
+	
 	
 	public void testByteArrayConstuctorValidatesPacketCorrectly()
 	{
@@ -354,10 +610,27 @@ public class RTPPacketTest
 			assertEquals(e.getMessage(), "Packet too short, expecting at least 5 bytes, but found 4", "wrong validation message");
 		}
 		
+		try 
+		{ 
+			// has extension but no data
+			RTPPacket.fromByteArray(new byte[] { (byte)0x90, 0x00, 0x01, 0x01, 0x01, 0x02, 0x03, 0x04, 0x04, 0x03, 0x02, 0x01, 0x40, 0x40, 0x40, 0x40 });
+			fail("Expected exception.");
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Packet too short, expecting at least 5 bytes, but found 4", "wrong validation message");
+		}
 		
-// jedaer extn
-		
-		
+		try 
+		{ 
+			// has extension but no data
+			RTPPacket.fromByteArray(new byte[] { (byte)0x90, 0x00, 0x01, 0x01, 0x01, 0x02, 0x03, 0x04, 0x04, 0x03, 0x02, 0x01, 0x40, 0x40, 0x00, 0x02, 0x10, 0x40 });
+			fail("Expected exception.");
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Packet too short, expecting at least 3 bytes, but found 2", "wrong validation message");
+		}
 	}
 
 	

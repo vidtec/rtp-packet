@@ -33,6 +33,12 @@ public class RTPPacket implements Comparable<RTPPacket>
 	//   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 	//   |                        header extension                       |
 	//   |                             ....                              |
+	
+	// NB: Maximum possible size of the full header is
+	//   = 4 + 4 (timestamp) + 4(ssrc) + 15 * 4(csrc) + 4(estension top) + 0xFFFF(extension)
+	//   = 12 + 60 + 4 + 0xFFFF
+	//   = 76 + 0xFFFF
+	//   = 65611 (0x1004B) bytes
 
 	
 	/** The RTP version constant. */
@@ -85,28 +91,87 @@ public class RTPPacket implements Comparable<RTPPacket>
 	private byte[] payload;
 
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-//	private RTPPacket()
-//	{
-//		this(VERSION);
-//	}
-//	
-//	private RTPPacket(final short version)
-//	{
-//		
-//	}
-	
-	
-	
-	
+	/**
+	 * Create an RTP packet from a builder.
+	 * NB: This constructor will validate the packet data is valid as per RFC 3550.
+	 * 
+	 * @param data The builder instance to construct a packet from.
+	 * 
+	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
+	 */
+	private RTPPacket(final Builder builder) 
+	throws IllegalArgumentException
+	{
+		hasMarker = builder.hasMarker;
+		
+		if (builder.payloadType > 127 || builder.payloadType < 0)
+		{
+			throw new IllegalArgumentException("Expected valid payload type not " + builder.payloadType);
+		}
+		payloadType = (short)builder.payloadType;
+		
+		if (builder.sequenceNumber > 0xFFFF || builder.sequenceNumber < 0)
+		{
+			throw new IllegalArgumentException("Expected valid sequence number not " + builder.sequenceNumber);
+		}
+		sequenceNumber = builder.sequenceNumber;
+				
+		if (builder.timestamp > 0xFFFFFFFFL || builder.timestamp < 0)
+		{
+			throw new IllegalArgumentException("Expected valid timestamp not " + builder.timestamp);
+		}
+		timestamp = builder.timestamp;
+				
+		if (builder.ssrcIdentifier > 0xFFFFFFFFL || builder.ssrcIdentifier < 0)
+		{
+			throw new IllegalArgumentException("Expected valid ssrcIdentifier not " + builder.ssrcIdentifier);
+		}
+		ssrcIdentifier = builder.ssrcIdentifier;
+		
+		if (builder.csrcIdentifiers != null)
+		{
+			if (builder.csrcIdentifiers.length > 15)
+			{
+				throw new IllegalArgumentException("Expected valid ccsrc identifiers count not " + builder.csrcIdentifiers.length);
+			}
+			csrcIdentifiers = builder.csrcIdentifiers;
+			csrcCount = (short)builder.csrcIdentifiers.length;
+		}
+		else
+		{
+			csrcCount = 0;
+		}
+		
+		if (builder.hasExtension)
+		{
+			if (builder.extensionHeader == null)
+			{
+				throw new IllegalArgumentException("Expected valid header not null");
+			}
+			if (builder.extensionHeader.length > 0xFFFF)
+			{
+				throw new IllegalArgumentException("Expected valid header length not " + builder.extensionHeader.length);
+			}
+			if (builder.extensionProfile > 0xFFFF || builder.extensionProfile < 0)
+			{
+				throw new IllegalArgumentException("Expected valid extension profile not " + builder.extensionProfile);
+			}
+			
+			hasExtension = builder.hasExtension;
+			extensionProfile = builder.extensionProfile;
+			extensionHeader = builder.extensionHeader;
+			extensionLength = builder.extensionHeader.length;
+		}
+		
+		if (builder.payload == null || builder.payload.length == 0)
+		{
+			throw new IllegalArgumentException("Expected valid payload not null or empty");
+		}
+		
+		payload = builder.payload;
+		payloadLength = (short)builder.payload.length;
+		paddingBytes = builder.paddingBytes;
+	}
 	
 	
 	/**
@@ -117,7 +182,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
-	public RTPPacket(final byte[] data)
+	private RTPPacket(final byte[] data)
 	throws IllegalArgumentException
 	{
 		final ByteBuffer bb = ByteBuffer.wrap(data);
@@ -190,12 +255,22 @@ public class RTPPacket implements Comparable<RTPPacket>
 		
 		if (hasExtension())
 		{
-// TEST FOR LEN
-			
+			if (bb.remaining() < 4 + 1)
+			{
+				// As per RFC 3550 - extn desc is 4 min bytes, there must be data - anything less is a bad packet.
+				throw new IllegalArgumentException("Packet too short, expecting at least " + (4 + 1) + " bytes, but found " + bb.remaining());
+			}
 			
 			// handle header extension parts.
 			extensionProfile = 0xFFFF & bb.getShort();
 			extensionLength = 0xFFFF & bb.getShort();
+			
+			if (bb.remaining() < extensionLength + 1)
+			{
+				// As per RFC 3550 - extn header is extensionLength bytes, there must be data - anything less is a bad packet.
+				throw new IllegalArgumentException("Packet too short, expecting at least " + (extensionLength + 1) + " bytes, but found " + bb.remaining());
+			}
+			
 			extensionHeader = new byte[extensionLength];
 			bb.get(extensionHeader);
 		}
@@ -356,7 +431,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 		return payloadType;
 	}
 
-	
+	 
 	/**
 	 * Gets the packet sequence number.
 	 * 
@@ -525,7 +600,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 		final ByteBuffer bb = ByteBuffer.wrap(data);
 		
 		bb.put((byte)(VERSION << 6 | (isPadded() ? 0x20 : 0x00) | (hasExtension() ? 0x10 : 0x00) | csrcCount ));
-		bb.put((byte)(hasMarker() ? 0x80 : 0x00 | payloadType));
+		bb.put((byte)(hasMarker() ? 0x80 | payloadType : 0x00 | payloadType));
 		bb.putShort((short)sequenceNumber);
 		bb.putInt((int)timestamp);
 		bb.putInt((int)ssrcIdentifier);
@@ -565,26 +640,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 		return new DatagramPacket(asByteArray(), packetLength(), address, port);
 	}
 	
-
 	
-
-
-	
-//	
-//	
-//	
-//	
-//	public void writeTo(DatagramChannel channel)
-//	{
-//		// nio write
-//		
-//	}
-
-
-
-
-
-
 	/**
 	 * Returns an RTP packet derived from a given byte array.
 	 * 
@@ -611,13 +667,151 @@ public class RTPPacket implements Comparable<RTPPacket>
 	{
 		return fromByteArray(packet.getData());
 	}
+	
 
-//	public static RTPPacket from(final DatagramChannel channel) 
-//	throws IllegalArgumentException
-//	{
-//		return null;
-//	}
+	/**
+	 * Creates a builder to manually build an {@link RTPPacket}.
+	 * 
+	 * @return The builder instance.
+	 */
+	public static Builder builder() 
+	{
+		return new Builder();
+	}
 
+
+	/**
+	 * A Builder class to build {@link RTPPacket} instances.
+	 */
+	public static final class Builder 
+	{
+		private boolean hasMarker;
+		private int payloadType = -1;
+		private int sequenceNumber = -1;
+		private long timestamp = -1;
+		private long ssrcIdentifier = -1;
+
+		private long[] csrcIdentifiers;
+
+		private boolean hasExtension;
+		private int extensionProfile = -1;
+		private byte[] extensionHeader;
+		
+		private byte[] payload;
+		private short paddingBytes = 0;
+
+		
+		/**
+		 * Private constructor.
+		 */
+		private Builder() { /* Empty Constructor */ }
+
+		/**
+		 * This packet should have a marker set.
+		 * 
+		 * @return The builder instance.
+		 */
+		public Builder withMarker() 
+		{
+			this.hasMarker = true;
+			return this;
+		}
+
+
+		/**
+		 * This packet should have required header fields set.
+		 * 
+		 * @param payloadType The payload type.
+		 * @param sequenceNumber The sequence number.
+		 * @param timestamp The timestamp.
+		 * @param ssrc The ssrc identifier.
+		 * @return The builder instance.
+		 */
+		public Builder withRequiredHeaderFields(final int payloadType, final int sequenceNumber, final long timestamp, final long ssrc) 
+		{
+			this.payloadType = payloadType;
+			this.sequenceNumber = sequenceNumber;
+			this.timestamp = timestamp;
+			this.ssrcIdentifier = ssrc;
+			return this;
+		}
+		
+		
+		/**
+		 * This packet should have csrc identifiers set.
+		 * 
+		 * @param csrcIdentifiers The csrc identifiers to set.
+		 * @return The builder instance.
+		 */
+		public Builder withCsrcIdentifiers(final long ... csrcIdentifiers) 
+		{
+			this.csrcIdentifiers = csrcIdentifiers;
+			return this;
+		}
+
+		
+		/**
+		 * This packet should have a header extension set.
+		 * 
+		 * @param extensionProfile The profile.
+		 * @param header The header data.
+		 * @return The builder instance.
+		 */
+		public Builder withHeaderExtension(final int extensionProfile, final byte[] header) 
+		{
+			this.extensionProfile = extensionProfile;
+			this.extensionHeader = header == null ? null : Arrays.copyOf(header, header.length);
+			this.hasExtension = true;
+			return this;
+		}
+
+		
+		/**
+		 * This packet should have a payload set.
+		 * 
+		 * @param payload The payload data.
+		 * @return The builder instance.
+		 */
+		public Builder withPayload(final byte[] payload) 
+		{
+			this.payload = payload == null ? null : Arrays.copyOf(payload, payload.length);
+			return this;
+		}
+		
+
+		/**
+		 * This packet should have a payload set but be aligned to a given byte boundary
+		 * (i.e. padded if needed).
+		 * 
+		 * @param payload The payload data.
+		 * @param alignToBytes The byte alignment boundary.
+		 * @return The builder instance.
+		 */
+		public Builder withPayload(final byte[] payload, final int alignToBytes) 
+		{
+			if (payload == null)
+			{
+				throw new IllegalArgumentException("cannot align to boundary of null data.");
+			}
+			
+			this.payload = Arrays.copyOf(payload, payload.length);
+			this.paddingBytes = (short)(payload.length % alignToBytes); 
+			return this;
+		}
+
+		
+		/**
+		 * Build the packet.
+		 * 
+		 * @return The packet instance.
+		 * 
+		 * @throws IllegalArgumentException If there is a problem with the supplied packet data.
+		 */
+		public RTPPacket build() 
+		{
+			return new RTPPacket(this);
+		}
+	}
 
 
 }
