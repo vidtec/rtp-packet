@@ -1,9 +1,12 @@
 package org.vidtech.rfc3550.rtp;
 
+import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Objects;
 
-public class RTPPacket  // implements Comparable<RTPPacket>
+public class RTPPacket implements Comparable<RTPPacket>
 {
 	
 	// RTP Packet format is defined as: (per RFC 3550, section 5.1)
@@ -61,15 +64,18 @@ public class RTPPacket  // implements Comparable<RTPPacket>
 	private long ssrcIdentifier;
 	
 	
+	/** The contributing source identifiers (CSRC)s. */
+	private long[] csrcIdentifiers;
 	
-//	private int extensionProfile;
+
+	/** The extension profile number (16-bit). */
+	private int extensionProfile;
 	
-	
+	/** The extension header length (16-bit). */
 	private int extensionLength;
 	
-	
-//	private byte[] extensionHeader;
-	
+	/** The extension header data. */
+	private byte[] extensionHeader;
 	
 
 	/** The payload length (EXCLUDING any padding data). */
@@ -169,16 +175,30 @@ public class RTPPacket  // implements Comparable<RTPPacket>
 		// SSRC id is bytes 9-12
 		ssrcIdentifier = bb.getInt();
 		
+		if (bb.remaining() < csrcCount * 4 + 1)
+		{
+			// As per RFC 3550 - each csrc is 4 bytes, there must be data - anything less is a bad packet.
+			throw new IllegalArgumentException("Packet too short, expecting at least " + (csrcCount * 4 + 1) + " bytes, but found " + bb.remaining());
+		}
 		
+		// CSRCs follow ...
+		csrcIdentifiers = new long[csrcCount];
+		for (int i = 0 ; i < csrcCount ; i++)
+		{
+			csrcIdentifiers[i] = bb.getInt();
+		}
 		
-		
-		// validate csrc count matches header length
-		
-		
-		// todo handle extension header
-		
-		
-		
+		if (hasExtension())
+		{
+// TEST FOR LEN
+			
+			
+			// handle header extension parts.
+			extensionProfile = bb.getShort();
+			extensionLength = bb.getShort();
+			extensionHeader = new byte[extensionLength];
+			bb.get(extensionHeader);
+		}
 		
 		// handle payload length and payload
 		bb.limit(bb.capacity() - paddingBytes);
@@ -190,21 +210,70 @@ public class RTPPacket  // implements Comparable<RTPPacket>
 	
 	
 	
-	
-	
-// comparable
-
-	// equals
-
-	// hash code = seq no + timestamp
 
 
+	/**
+	 * Packets are compared based on sequence number alone.
+	 * There is a special case where a sequence number rolls over.
+	 *   ie.  max-1 max 0
+	 *   
+	 * In this instance, the packets are still deemed to be in correct order.
+	 * 
+	 * {@inheritDoc}
+	 */
+	public int compareTo(RTPPacket o) 
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	
+
 	
 	
 	
 	
-	
-	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() 
+	{
+		return Objects.hash(sequenceNumber, timestamp);
+	}
+
+
+	/**
+	 * A packet is deemed equal if it has the same sequence number and timestamp.
+	 * payload data is NOT inspected.
+	 * 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(final Object obj) 
+	{
+		if (obj == null || !(obj instanceof RTPPacket))
+		{
+			return false;
+		}
+		
+		return this.sequenceNumber == ((RTPPacket)obj).sequenceNumber &&
+			   this.timestamp == ((RTPPacket)obj).timestamp;
+	}
+
+
+	/**
+	 * A packet cannot be cloned, it makes no sense as it has no mutable state.
+	 * 
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Object clone() throws CloneNotSupportedException 
+	{
+		throw new CloneNotSupportedException();
+	}
+
+
 	/**
 	 * Get the RTP protocol version - should be 2 as per RFC 3550.
 	 * 
@@ -232,7 +301,7 @@ public class RTPPacket  // implements Comparable<RTPPacket>
 	 * 
 	 * @return The number of padding bytes used, 0 indicates no padding.
 	 */
-	public short getPaddedBytes() 
+	public short paddedBytesCount() 
 	{
 		return paddingBytes;
 	}	
@@ -326,18 +395,49 @@ public class RTPPacket  // implements Comparable<RTPPacket>
 	}
 	
 	
+	/**
+	 * Get the set of corresponding source identifiers as a long[].
+	 * 
+	 * @return The array of csrc identifiers matching the csrc count.
+	 */
+	public long[] csrcIdentifiers()
+	{
+		return hasCsrcs() ? Arrays.copyOf(csrcIdentifiers, csrcCount) : new long[0];
+	}
 	
-// csrcs
+	
+	/**
+	 * Get the header extension profile (if extension is present).
+	 * 
+	 * @return The extension profile, or -1 if no extension is present.
+	 */
+	public int extensionProfile()
+	{
+		return hasExtension() ? extensionProfile : -1;
+	}
+
+	
+	/**
+	 * Get the header extension length (if extension is present).
+	 * 
+	 * @return The extension length, or -1 if no extension is present.
+	 */
+	public int extensionLength()
+	{
+		return hasExtension() ? extensionLength : -1;
+	}
 	
 	
-// extsion	
-	
-	
-	
-	
-	
-	
-	
+	/**
+	 * Get the header extension data (if extension is present).
+	 * 
+	 * @return The extension data, or empty byte[] if no extension is present.
+	 */
+	public byte[] extensionHeaderAsByteArray()
+	{
+		return hasExtension() ? Arrays.copyOf(extensionHeader, extensionLength) : new byte[0];
+	}
+
 	
 	/**
 	 * Gets the payload length WITHOUT PADDING.
@@ -365,25 +465,38 @@ public class RTPPacket  // implements Comparable<RTPPacket>
 	
 	
 	/**
-	 * Gets the payload data with padding REMOVED.
-	 * NB: If the payload with padding is required, see payloadRaw().
+	 * Gets the payload data with padding REMOVED as a byte[].
+	 * NB: If the payload with padding is required, see payloadRawAsByteArray().
 	 * NB: This is the normal usage, as you want padding removed in most cases.
 	 * 
-	 * @return a copy of the RDP packet payload.
+	 * @return a copy of the RDP packet payload as a ByteBuffer.
 	 */
-	public byte[] payload() 
+	public ByteBuffer payloadAsByteBuffer() 
+	{
+		return ByteBuffer.wrap(Arrays.copyOf(payload, payloadLength));
+	}
+	
+	
+	/**
+	 * Gets the payload data with padding REMOVED.
+	 * NB: If the payload with padding is required, see payloadRawAsByteArray().
+	 * NB: This is the normal usage, as you want padding removed in most cases.
+	 * 
+	 * @return a copy of the RDP packet payload as a byte[].
+	 */
+	public byte[] payloadAsByteArray() 
 	{
 		return Arrays.copyOf(payload, payloadLength);
 	}
 	
 	
 	/**
-	 * Gets the payload data WITH padding.
-	 * NB: If the payload without padding is required, see payload().
+	 * Gets the payload data WITH padding as a byte[].
+	 * NB: If the payload without padding is required, see payloadAsByteArray().
 	 * 
-	 * @return a copy of the RDP packet payload.
+	 * @return a copy of the RDP packet payload as a byte[].
 	 */
-	public byte[] payloadRaw() 
+	public byte[] payloadRawAsByteArray() 
 	{
 		final byte[] data = Arrays.copyOf(payload, payloadLengthRaw());
 		if (isPadded()) 
@@ -416,17 +529,23 @@ public class RTPPacket  // implements Comparable<RTPPacket>
 		final byte[] data = new byte[packetLength()];
 		final ByteBuffer bb = ByteBuffer.wrap(data);
 		
-		// magic
-		
 		bb.put((byte)(VERSION << 6 | (isPadded() ? 0x20 : 0x00) | (hasExtension() ? 0x10 : 0x00) | csrcCount ));
 		bb.put((byte)(hasMarker() ? 0x80 : 0x00 | payloadType));
 		bb.putShort((short)sequenceNumber);
 		bb.putInt((int)timestamp);
 		bb.putInt((int)ssrcIdentifier);
 		
-// to do csrcs
-		
-// todo extenstion
+		for (int i = 0 ; i < csrcCount ; i++)
+		{
+			bb.putInt((int)csrcIdentifiers[i]);
+		}
+
+		if (hasExtension())
+		{
+			bb.putShort((short)extensionProfile);
+			bb.putShort((short)extensionLength);
+			bb.put(extensionHeader);
+		}
 		
 		bb.put(payload);
 		
@@ -439,19 +558,17 @@ public class RTPPacket  // implements Comparable<RTPPacket>
 	}
 	
 	
-	
-	
-//	/**
-//	 * 
-//	 * @param address The InetAddress that the datagram will be sent to.
-//	 * @param port The port that the datagram will be sent to.
-//	 * 
-//	 * @return A DatagramPacket that is ready to send.
-//	 */
-//	public DatagramPacket asDatagramPacket(final InetAddress address, final int port)
-//	{
-//		return new DatagramPacket(asByteArray(), packetLength(), address, port);
-//	}
+	/**
+	 * 
+	 * @param address The InetAddress that the datagram will be sent to.
+	 * @param port The port that the datagram will be sent to.
+	 * 
+	 * @return A DatagramPacket that is ready to send.
+	 */
+	public DatagramPacket asDatagramPacket(final InetAddress address, final int port)
+	{
+		return new DatagramPacket(asByteArray(), packetLength(), address, port);
+	}
 //	
 //	
 //	
@@ -484,6 +601,8 @@ public class RTPPacket  // implements Comparable<RTPPacket>
 	{
 		return new RTPPacket(data);
 	}
+
+
 
 
 
