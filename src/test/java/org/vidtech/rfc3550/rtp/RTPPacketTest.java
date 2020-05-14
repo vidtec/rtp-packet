@@ -443,6 +443,20 @@ public class RTPPacketTest
 		assertEquals(packets.get(1).sequenceNumber(), 0x0002, "wrong sort order" );
 		assertEquals(packets.get(2).sequenceNumber(), 0x0004, "wrong sort order" );
 		assertEquals(packets.get(3).sequenceNumber(), 0xFFFF, "wrong sort order" );
+		
+		packets.clear();
+		packets.add(null);
+		packets.add(RTPPacket.fromByteArray(data1));
+		
+		try
+		{
+			Collections.sort(packets);
+			fail("should error with NPE");
+		}
+		catch (NullPointerException e)
+		{
+			// expected
+		}
 	}
 
 	
