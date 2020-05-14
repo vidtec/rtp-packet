@@ -167,13 +167,13 @@ public class RTPPacket implements Comparable<RTPPacket>
 		payloadType = (short)(secondByte & 0x7F);
 		
 		// Sequence Number is bytes 3-4
-		sequenceNumber = bb.getShort();
+		sequenceNumber = 0xFFFF & bb.getShort();
 		
 		// Timestamp is bytes 5-8
-		timestamp = bb.getInt();
+		timestamp = 0xFFFFFFFF & bb.getInt();
 		
 		// SSRC id is bytes 9-12
-		ssrcIdentifier = bb.getInt();
+		ssrcIdentifier = 0xFFFFFFFF & bb.getInt();
 		
 		if (bb.remaining() < csrcCount * 4 + 1)
 		{
@@ -185,7 +185,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 		csrcIdentifiers = new long[csrcCount];
 		for (int i = 0 ; i < csrcCount ; i++)
 		{
-			csrcIdentifiers[i] = bb.getInt();
+			csrcIdentifiers[i] = 0xFFFFFFFF & bb.getInt();
 		}
 		
 		if (hasExtension())
@@ -194,8 +194,8 @@ public class RTPPacket implements Comparable<RTPPacket>
 			
 			
 			// handle header extension parts.
-			extensionProfile = bb.getShort();
-			extensionLength = bb.getShort();
+			extensionProfile = 0xFFFF & bb.getShort();
+			extensionLength = 0xFFFF & bb.getShort();
 			extensionHeader = new byte[extensionLength];
 			bb.get(extensionHeader);
 		}
@@ -209,43 +209,19 @@ public class RTPPacket implements Comparable<RTPPacket>
 	}
 	
 	
-	
-
-
-	/**
-	 * Packets are compared based on sequence number alone.
-	 * There is a special case where a sequence number rolls over.
-	 *   ie.  max-1 max 0
-	 *   
-	 * In this instance, the packets are still deemed to be in correct order.
-	 * 
-	 * {@inheritDoc}
-	 */
-	public int compareTo(RTPPacket o) 
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	
-
-	
-	
-	
-	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public int hashCode() 
 	{
-		return Objects.hash(sequenceNumber, timestamp);
+		return Objects.hash(sequenceNumber);
 	}
 
 
 	/**
-	 * A packet is deemed equal if it has the same sequence number and timestamp.
-	 * payload data is NOT inspected.
+	 * A packet is deemed equal if it has the same sequence number.
+	 * timestamp and payload data are NOT inspected.
 	 * 
 	 * {@inheritDoc}
 	 */
@@ -257,8 +233,27 @@ public class RTPPacket implements Comparable<RTPPacket>
 			return false;
 		}
 		
-		return this.sequenceNumber == ((RTPPacket)obj).sequenceNumber &&
-			   this.timestamp == ((RTPPacket)obj).timestamp;
+		return this.sequenceNumber == ((RTPPacket)obj).sequenceNumber;
+	}
+
+
+	/**
+	 * Packets are compared based on sequence number alone.
+	 * There is a special case where a sequence number rolls over.
+	 *   ie.  max-1 max 0
+	 *   
+	 * This comparison WILL NOT handle that case.
+	 * 
+	 * {@inheritDoc}
+	 */
+	public int compareTo(final RTPPacket o) 
+	{
+		if (o == null)
+		{
+			throw new NullPointerException("Unexpect null in compareTo");
+		}
+
+		return this.sequenceNumber - o.sequenceNumber;
 	}
 
 
@@ -565,10 +560,16 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 * 
 	 * @return A DatagramPacket that is ready to send.
 	 */
-	public DatagramPacket asDatagramPacket(final InetAddress address, final int port)
+	public DatagramPacket asDatagramPacket(InetAddress address, int port) 
 	{
 		return new DatagramPacket(asByteArray(), packetLength(), address, port);
 	}
+	
+
+	
+
+
+	
 //	
 //	
 //	
@@ -578,12 +579,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 //		// nio write
 //		
 //	}
-	
-//	public void write(Datagram DatagramChannel)
-//	{
-//		//DatagramChannel
-//	}
-	
+
 
 
 
@@ -596,16 +592,25 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
-	public static RTPPacket from(final byte[] data)
+	public static RTPPacket fromByteArray(final byte[] data)
 	throws IllegalArgumentException
 	{
 		return new RTPPacket(data);
 	}
 
 
-
-
-
+	/**
+	 * Returns an RTP packet derived from a given DatagramPacket.
+	 * 
+	 * @param packet DatagramPacket construct a packet from.
+	 * 
+	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
+	 */
+	public static RTPPacket fromDatagramPacket(final DatagramPacket packet)
+	throws IllegalArgumentException
+	{
+		return fromByteArray(packet.getData());
+	}
 
 //	public static RTPPacket from(final DatagramChannel channel) 
 //	throws IllegalArgumentException
