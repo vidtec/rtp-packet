@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vidtech</groupId>
 	<artifactId>rtp-packet</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 
 	<description>A lightweight (no-dependancy) library for reading/writing RTP data as per RFC 3550</description>
 
@@ -32,7 +32,6 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.8.1</version>
 					<configuration>
-						<!-- put your configurations here -->
 					</configuration>
 				</plugin>
 
@@ -41,8 +40,6 @@
 					<artifactId>spotbugs-maven-plugin</artifactId>
 					<version>4.0.0</version>
 					<dependencies>
-						<!-- overwrite dependency on spotbugs if you want to specify the version 
-							of spotbugs -->
 						<dependency>
 							<groupId>com.github.spotbugs</groupId>
 							<artifactId>spotbugs</artifactId>
@@ -59,8 +56,6 @@
 				<artifactId>spotbugs-maven-plugin</artifactId>
 				<configuration>
 					<effort>Max</effort>
-					<!-- <threshold>Low</threshold> -->
-					<!-- <xmlOutput>true</xmlOutput> -->
 				</configuration>
 				<executions>
 					<execution>
@@ -106,7 +101,6 @@
 				<reportSets>
 					<reportSet>
 						<reports>
-							<!-- select non-aggregate reports -->
 							<report>report</report>
 						</reports>
 					</reportSet>
