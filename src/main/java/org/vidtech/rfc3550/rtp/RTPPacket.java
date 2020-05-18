@@ -6,6 +6,12 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * An implementation of an RTP packet according to RFC 3550/.
+ * https://tools.ietf.org/html/rfc3550
+ * 
+ * This class also supports the header extension.
+ */
 public class RTPPacket implements Comparable<RTPPacket>
 {
 	
@@ -46,49 +52,49 @@ public class RTPPacket implements Comparable<RTPPacket>
 
 	
 	/** The number of padding bytes in this packet. */
-	private short paddingBytes;
+	private final short paddingBytes;
 	
 	/** The flag indicating if this packet has an extension header. */
-	private boolean hasExtension;
+	private final boolean hasExtension;
 
 	/** The number of contributing source records in this packet. */
-	private short csrcCount;
+	private final short csrcCount;
 
 	/** The flag that indicates if this packet has a market set. */
-	private boolean hasMarker;
+	private final boolean hasMarker;
 	
 	/** The payload type for this packet (e.g. as set in RFC 3551). */
-	private short payloadType;
+	private final short payloadType;
 
 	/** The packet sequence number (16-bit). */
-	private int sequenceNumber;
+	private final int sequenceNumber;
 
 	/** The packet timestamp (32-bit). */
-	private long timestamp;
+	private final long timestamp;
 	
 	/** The synchronisation source identifier (SSRC). */
-	private long ssrcIdentifier;
+	private final long ssrcIdentifier;
 	
 	
 	/** The contributing source identifiers (CSRC)s. */
-	private long[] csrcIdentifiers;
+	private final long[] csrcIdentifiers;
 	
 
 	/** The extension profile number (16-bit). */
-	private int extensionProfile;
+	private final int extensionProfile;
 	
 	/** The extension header length (16-bit). */
-	private int extensionLength;
+	private final int extensionLength;
 	
 	/** The extension header data. */
-	private byte[] extensionHeader;
+	private final byte[] extensionHeader;
 	
 
 	/** The payload length (EXCLUDING any padding data). */
-	private short payloadLength;
+	private final short payloadLength;
 
 	/** The actual packet payload. */
-	private byte[] payload;
+	private final byte[] payload;
 
 
 	/**
@@ -140,6 +146,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 		else
 		{
 			csrcCount = 0;
+			csrcIdentifiers = new long[0];
 		}
 		
 		if (builder.hasExtension)
@@ -157,10 +164,18 @@ public class RTPPacket implements Comparable<RTPPacket>
 				throw new IllegalArgumentException("Expected valid extension profile not " + builder.extensionProfile);
 			}
 			
-			hasExtension = builder.hasExtension;
+			hasExtension = true;
 			extensionProfile = builder.extensionProfile;
 			extensionHeader = builder.extensionHeader;
 			extensionLength = builder.extensionHeader.length;
+		}
+		else
+		{
+			// No header extension.
+			hasExtension = false;
+			extensionProfile = -1;
+			extensionHeader = new byte[0];
+			extensionLength = -1;
 		}
 		
 		if (builder.payload == null || builder.payload.length == 0)
@@ -203,17 +218,11 @@ public class RTPPacket implements Comparable<RTPPacket>
 			throw new IllegalArgumentException("Invalid version number found, expecting " + VERSION);
 		}
 
-		// If padding flag is set, then get padding byte count.
-		if ((firstByte & 0x20) == 0x20)
-		{
-			paddingBytes = bb.get(bb.limit() - 1);
-		}
+		// If padding flag is set, then get padding byte count, otherwise set 0.
+		paddingBytes = ((firstByte & 0x20) == 0x20) ? bb.get(bb.limit() - 1) : 0;
 		
 		// Set the extension header if flag set.
-		if ((firstByte & 0x10) == 0x10)
-		{
-			hasExtension = true;
-		}
+		hasExtension = ((firstByte & 0x10) == 0x10) ? true : false;
 		
 		// Set number of csrc 
 		csrcCount = (short)(firstByte & 0x0F);
@@ -222,11 +231,8 @@ public class RTPPacket implements Comparable<RTPPacket>
 		// Handle and unpack the 2nd byte.
 		int secondByte = bb.get();
 		
-		// Set the marker hedaer if flag set.
-		if ((secondByte & 0x80) == 0x80)
-		{
-			hasMarker = true;
-		}
+		// Set the marker header if flag set.
+		hasMarker = ((secondByte & 0x80) == 0x80) ? true : false;
 		
 		// Set the payload type.
 		payloadType = (short)(secondByte & 0x7F);
@@ -273,6 +279,13 @@ public class RTPPacket implements Comparable<RTPPacket>
 			
 			extensionHeader = new byte[extensionLength];
 			bb.get(extensionHeader);
+		}
+		else
+		{
+			// no extension.
+			extensionProfile = -1;
+			extensionLength = -1;
+			extensionHeader = new byte[0];
 		}
 		
 		// handle payload length and payload
