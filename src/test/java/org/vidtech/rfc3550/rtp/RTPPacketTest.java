@@ -38,7 +38,7 @@ public class RTPPacketTest
 		assertEquals(p.payloadType(), 1, "payload type should be 1");
 		assertEquals(p.sequenceNumber(), 257, "seq. no should be 0x0101");
 		assertEquals(p.timestamp(), 16909060, "timestamp should be 0x01020304");
-		assertEquals(p.ssrcIdentifier(), 67305985, "timestamp should be 0x04030201");
+		assertEquals(p.ssrcIdentifier(), 67305985, "ssrc should be 0x04030201");
 	
 		assertEquals(p.extensionProfile(), -1, "extn prof should not be set.");
 		assertEquals(p.extensionLength(), -1, "extn length should not be set.");
@@ -77,7 +77,7 @@ public class RTPPacketTest
 		assertEquals(p.payloadType(), 0, "payload type should be 0");
 		assertEquals(p.sequenceNumber(), 257, "seq. no should be 0x0101");
 		assertEquals(p.timestamp(), 16909060, "timestamp should be 0x01020304");
-		assertEquals(p.ssrcIdentifier(), 67305985, "timestamp should be 0x04030201");
+		assertEquals(p.ssrcIdentifier(), 67305985, "ssrc should be 0x04030201");
 	
 		assertEquals(p.extensionProfile(), -1, "extn prof should not be set.");
 		assertEquals(p.extensionLength(), -1, "extn length should not be set.");
@@ -116,7 +116,7 @@ public class RTPPacketTest
 		assertEquals(p.payloadType(), 1, "payload type should be 1");
 		assertEquals(p.sequenceNumber(), 257, "seq. no should be 0x0101");
 		assertEquals(p.timestamp(), 16909060, "timestamp should be 0x01020304");
-		assertEquals(p.ssrcIdentifier(), 67305985, "timestamp should be 0x04030201");
+		assertEquals(p.ssrcIdentifier(), 67305985, "ssrc should be 0x04030201");
 	
 		assertEquals(p.extensionProfile(), -1, "extn prof should not be set.");
 		assertEquals(p.extensionLength(), -1, "extn length should not be set.");
@@ -155,7 +155,7 @@ public class RTPPacketTest
 		assertEquals(p.payloadType(), 0, "payload type should be 0");
 		assertEquals(p.sequenceNumber(), 257, "seq. no should be 0x0101");
 		assertEquals(p.timestamp(), 16909060, "timestamp should be 0x01020304");
-		assertEquals(p.ssrcIdentifier(), 67305985, "timestamp should be 0x04030201");
+		assertEquals(p.ssrcIdentifier(), 67305985, "ssrc should be 0x04030201");
 	
 		assertEquals(p.extensionProfile(), -1, "extn prof should not be set.");
 		assertEquals(p.extensionLength(), -1, "extn length should not be set.");
@@ -193,7 +193,7 @@ public class RTPPacketTest
 		assertEquals(p.payloadType(), 0, "payload type should be 0");
 		assertEquals(p.sequenceNumber(), 257, "seq. no should be 0x0101");
 		assertEquals(p.timestamp(), 16909060, "timestamp should be 0x01020304");
-		assertEquals(p.ssrcIdentifier(), 67305985, "timestamp should be 0x04030201");
+		assertEquals(p.ssrcIdentifier(), 67305985, "ssrc should be 0x04030201");
 	
 		assertEquals(p.extensionProfile(), 3, "extn prof should be set.");
 		assertEquals(p.extensionLength(), 2, "extn length should be set.");
@@ -232,7 +232,7 @@ public class RTPPacketTest
 		assertEquals(p.payloadType(), 0, "payload type should be 0");
 		assertEquals(p.sequenceNumber(), 257, "seq. no should be 0x0101");
 		assertEquals(p.timestamp(), 16909060, "timestamp should be 0x01020304");
-		assertEquals(p.ssrcIdentifier(), 67305985, "timestamp should be 0x04030201");
+		assertEquals(p.ssrcIdentifier(), 67305985, "ssrc should be 0x04030201");
 	
 		assertEquals(p.extensionProfile(), 3, "extn prof should be set.");
 		assertEquals(p.extensionLength(), 2, "extn length should be set.");
@@ -275,7 +275,7 @@ public class RTPPacketTest
 		assertEquals(p.payloadType(), 127, "payload type should be 127");
 		assertEquals(p.sequenceNumber(), 0xFFFF, "seq. no should be 0xFFFF");
 		assertEquals(p.timestamp(), 0xFFFFFFFF, "timestamp should be 0xFFFFFFFF");
-		assertEquals(p.ssrcIdentifier(), 0xFFFFFFFF, "timestamp should be 0xFFFFFFFF");
+		assertEquals(p.ssrcIdentifier(), 0xFFFFFFFF, "ssrc should be 0xFFFFFFFF");
 	
 		assertEquals(p.extensionProfile(), 0xFFFF, "extn prof should be set.");
 		assertEquals(p.extensionLength(), 0xFFFF, "extn length should be set.");
@@ -321,7 +321,7 @@ public class RTPPacketTest
 		assertEquals(p.payloadType(), 22, "payload type should be 22");
 		assertEquals(p.sequenceNumber(), 123, "seq. no should be 123");
 		assertEquals(p.timestamp(), 456, "timestamp should be 456");
-		assertEquals(p.ssrcIdentifier(), 789, "timestamp should be 789");
+		assertEquals(p.ssrcIdentifier(), 789, "ssrc should be 789");
 	
 		assertEquals(p.extensionProfile(), 0xDD, "extn prof should be set.");
 		assertEquals(p.extensionLength(), 4, "extn length should be set.");
@@ -370,7 +370,7 @@ public class RTPPacketTest
 		assertEquals(p.payloadType(), 127, "payload type should be 127");
 		assertEquals(p.sequenceNumber(), 0xFFFF, "seq. no should be 0xFFFF");
 		assertEquals(p.timestamp(), 0xFFFFFFFFL, "timestamp should be 0xFFFFFFFF");
-		assertEquals(p.ssrcIdentifier(), 0xFFFFFFFFL, "timestamp should be 0xFFFFFFFF");
+		assertEquals(p.ssrcIdentifier(), 0xFFFFFFFFL, "ssrc should be 0xFFFFFFFF");
 	
 		assertEquals(p.extensionProfile(), 0xFFFF, "extn prof should be set.");
 		assertEquals(p.extensionLength(), 0xFFFF, "extn length should be set.");
@@ -755,7 +755,7 @@ public class RTPPacketTest
 		assertEquals(p.payloadType(), 0, "payload type should be 0");
 		assertEquals(p.sequenceNumber(), 257, "seq. no should be 0x0101");
 		assertEquals(p.timestamp(), 16909060, "timestamp should be 0x01020304");
-		assertEquals(p.ssrcIdentifier(), 67305985, "timestamp should be 0x04030201");
+		assertEquals(p.ssrcIdentifier(), 67305985, "ssrc should be 0x04030201");
 	
 		assertEquals(p.extensionProfile(), -1, "extn prof should not be set.");
 		assertEquals(p.extensionLength(), -1, "extn length should not be set.");
