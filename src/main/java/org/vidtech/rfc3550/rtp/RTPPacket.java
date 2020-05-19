@@ -101,7 +101,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 * Create an RTP packet from a builder.
 	 * NB: This constructor will validate the packet data is valid as per RFC 3550.
 	 * 
-	 * @param data The builder instance to construct a packet from.
+	 * @param builder The builder instance to construct a packet from.
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
