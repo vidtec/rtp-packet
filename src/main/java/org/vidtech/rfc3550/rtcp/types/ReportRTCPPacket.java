@@ -78,11 +78,19 @@ public abstract class ReportRTCPPacket extends RTCPPacket
 		 */
 		private ReportBlock(final Builder builder) 
 		{
-			if (builder.ssrcIdentifier == -1)
+			if (builder.ssrcIdentifier > 0xFFFFFFFFL || builder.ssrcIdentifier < 0)
 			{
 				throw new IllegalArgumentException("Expected valid SSRC value.");
 			}
-			if (builder.fractionLost == -1 || builder.cumulativeLost == -1 || builder.extendedHighestSequenceNumber == -1)
+			if (builder.extendedHighestSequenceNumber > 0xFFFFFFFFL || builder.extendedHighestSequenceNumber < 0)
+			{
+				throw new IllegalArgumentException("Expected valid extended sequence number.");
+			}
+			if (builder.fractionLost > 0xFF || builder.cumulativeLost > 0xFFFFFF || builder.interarrivalJitter > 0xFFFFFFFFL)
+			{
+				throw new IllegalArgumentException("Expected valid packet statistics values.");
+			}			
+			if (builder.fractionLost < 0 || builder.cumulativeLost < 0 || builder.interarrivalJitter < 0)
 			{
 				throw new IllegalArgumentException("Expected valid packet statistics values.");
 			}
@@ -116,7 +124,7 @@ public abstract class ReportRTCPPacket extends RTCPPacket
 			if (bb.remaining() != BLOCK_SIZE)
 			{
 				// As per RFC 3550 - the report block is 24 bytes, so anything less is a bad block.
-				throw new IllegalArgumentException("report block too short, expecting " + BLOCK_SIZE + " bytes, but found " + bb.remaining());
+				throw new IllegalArgumentException("report block was wrong size, expecting " + BLOCK_SIZE + " bytes, but found " + bb.remaining());
 			}
 
 			// SSRC id is bytes 0-3
@@ -253,6 +261,17 @@ public abstract class ReportRTCPPacket extends RTCPPacket
 			return new ReportBlock(data);
 		}
 		
+
+		/**
+		 * Creates a builder to manually build an {@link ReportBlock}.
+		 * 
+		 * @return The builder instance.
+		 */
+		public static ReportBlock.Builder builder() 
+		{
+			return new Builder();
+		}
+
 		
 		/**
 		 * A Builder class to build {@link ReportBlock} instances.
@@ -279,9 +298,22 @@ public abstract class ReportRTCPPacket extends RTCPPacket
 			 * @param ssrc The ssrc identifier.
 			 * @return The builder instance.
 			 */
-			public Builder withwithSsrc(final long ssrc) 
+			public Builder withSsrc(final long ssrc) 
 			{
 				this.ssrcIdentifier = ssrc;
+				return this;
+			}
+			
+
+			/**
+			 * This packet should have an extended seq, number.
+			 * @param extendedHighestSequenceNumber The extended sequence number.
+			 * 
+			 * @return The builder instance.
+			 */
+			public Builder withExtendedSequenceNumber(long extendedHighestSequenceNumber) 
+			{
+				this.extendedHighestSequenceNumber = extendedHighestSequenceNumber;
 				return this;
 			}
 			
@@ -294,11 +326,12 @@ public abstract class ReportRTCPPacket extends RTCPPacket
 			 * @param jitter The jitter packet count.
 			 * @return The builder instance.
 			 */
-			public Builder withStatistics(final short fractionLost, final long cumLost, final long jitter)
+			public Builder withStatistics(final int fractionLost, final long cumLost, final long jitter)
 			{
-				this.fractionLost = fractionLost;
+				this.fractionLost =  (short) (0xFFFF & fractionLost);
 				this.cumulativeLost = cumLost;
 				this.interarrivalJitter = jitter;
+				return this;
 			}
 			
 
@@ -311,8 +344,13 @@ public abstract class ReportRTCPPacket extends RTCPPacket
 			public Builder withStatistics(final TransmissionStatistics stats)
 			{
 				this.fractionLost = stats.fractionLost();
-				this.cumulativeLost = stats.totalLost();
-				this.extendedHighestSequenceNumber = stats.maxSequenceNumber();
+				this.cumulativeLost = Math.min(0xFFFFFFL, stats.lost());	// clamp of 24-bit as per spec (no rollover).
+
+this.interarrivalJitter = 0;
+// FIXME
+
+				this.extendedHighestSequenceNumber = stats.maxExtendedSequenceNumber();
+				return this;
 			}
 			
 			
@@ -327,6 +365,7 @@ public abstract class ReportRTCPPacket extends RTCPPacket
 			{
 				this.lastSR = lastSR;
 				this.dlSR = delaySinceLastSR;
+				return this;
 			}
 			
 			

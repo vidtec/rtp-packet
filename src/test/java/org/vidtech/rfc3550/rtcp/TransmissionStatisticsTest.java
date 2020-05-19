@@ -12,10 +12,22 @@ public class TransmissionStatisticsTest
 	{
 		final TransmissionStatistics s = TransmissionStatistics.fromStartSequence(2);
 
-		assertEquals(s.maxExtendedSequenceNumber(), 2, "expected total loss.");
+		assertEquals(s.maxExtendedSequenceNumber(), 2, "expected max seq no.");
 		assertEquals(s.fractionLost(), 0, "expected no loss.");
 		assertEquals(s.lost(), 0, "expected total loss.");
 		assertEquals(s.received(), 0, "expected no packets.");
+	}
+
+	
+	public void testCanTriviallyIncrementStats()
+	{
+		final TransmissionStatistics s = TransmissionStatistics.fromStartSequence(2);
+		s.update(3);
+		
+		assertEquals(s.maxExtendedSequenceNumber(), 3, "expected max seq no.");
+		assertEquals(s.fractionLost(), 0, "expected no loss.");
+		assertEquals(s.lost(), 0, "expected total loss.");
+		assertEquals(s.received(), 1, "expected 1 packet.");
 	}
 	
 	
