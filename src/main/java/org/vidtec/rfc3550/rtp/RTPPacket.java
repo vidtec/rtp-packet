@@ -1,4 +1,4 @@
-package org.vidtech.rfc3550.rtp;
+package org.vidtec.rfc3550.rtp;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
