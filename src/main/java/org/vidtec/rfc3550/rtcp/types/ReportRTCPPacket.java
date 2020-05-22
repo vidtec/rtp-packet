@@ -2,7 +2,6 @@ package org.vidtec.rfc3550.rtcp.types;
 
 import java.nio.ByteBuffer;
 
-import org.vidtec.rfc3550.rtcp.RTCPPacket;
 import org.vidtec.rfc3550.rtcp.TransmissionStatistics;
 
 /**
@@ -27,7 +26,7 @@ public abstract class ReportRTCPPacket extends RTCPPacket
 	
 	
 	
-	private ReportRTCPPacket()
+	protected ReportRTCPPacket()
 	{
 		this.ssrcSenderIdentifier = 0;
 		this.reportCount = 0;

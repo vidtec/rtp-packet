@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import org.vidtec.rfc3550.rtcp.types.RTCPPacket;
+
 /**
  * A container for RTCP packets. This is the entry point for 
  * decoding RTCP packets as received, as they could be compound.

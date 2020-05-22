@@ -1,10 +1,10 @@
-package org.vidtec.rfc3550.rtcp;
+package org.vidtec.rfc3550.rtcp.types;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
 import org.testng.annotations.Test;
-import org.vidtec.rfc3550.rtcp.RTCPPacket.PayloadType;
+import org.vidtec.rfc3550.rtcp.types.RTCPPacket.PayloadType;
 
 @Test
 public class PayloadTypeTest 

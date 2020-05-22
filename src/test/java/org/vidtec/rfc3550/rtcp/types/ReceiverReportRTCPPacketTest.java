@@ -1,9 +1,9 @@
-package org.vidtec.rfc3550.rtcp;
+package org.vidtec.rfc3550.rtcp.types;
 
 import org.testng.annotations.Test;
 
 @Test
-public class RTCPPacketTest 
+public class ReceiverReportRTCPPacketTest 
 {
 
 	public void testCanCreateSimpleSRPacketFromValidByteArray()
