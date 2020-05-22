@@ -12,7 +12,47 @@ import org.vidtech.rfc3550.rtcp.TransmissionStatistics;
 public abstract class ReportRTCPPacket extends RTCPPacket
 {
 
+	/** The SSRC of the sender. */
+	private final long ssrcSenderIdentifier;
+	
+	/** The number of reports in this packet. */
+	private final short reportCount;
+	
+	/** The report blocks in this packet. */
+	private final ReportBlock[] reportBlocks;
+	
 
+	
+	
+	
+	
+	
+	private ReportRTCPPacket()
+	{
+		this.ssrcSenderIdentifier = 0;
+		this.reportCount = 0;
+		this.reportBlocks = null;
+	}
+	
+	
+	public void payloadType()
+	{
+		// get payload tyype - set by super class
+	}
+	
+	
+	
+	
+	protected void packetLength()
+	{
+		// calc based on data
+		// super class overrides with class bits
+	}
+	
+	protected void asPartialPacket()
+	{
+		// report specfic data added here.
+	}
 	
 	
 

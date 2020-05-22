@@ -1,5 +1,9 @@
 package org.vidtech.rfc3550.rtcp;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * An implementation of an RTCP packet according to RFC 3550/.
  * https://tools.ietf.org/html/rfc3550
@@ -24,18 +28,66 @@ public abstract class RTCPPacket
 	//  - the first packet must have payload type = SR/RR
 	//  - the overall packet size cannot exceed MTU of the transport.
 	
-	// Supported packet types and values
-	//
-	// SR     200   sender report          
-	// RR     201   receiver report          
-	// SDES   202   source description        
-	// BYE    203   goodbye          
-	// APP    204   application-defined          
-
 	
+	/**
+	 * An enumeration of payload types.
+	 * 
+	 * 	 Supported packet types and values
+	 * 	 	
+	 * 	 SR     200   sender report          
+	 * 	 RR     201   receiver report          
+	 * 	 SDES   202   source description        
+	 * 	 BYE    203   goodbye          
+	 * 	 APP    204   application-defined          
+	 */
 	public static enum PayloadType
 	{
-		RR
+		SR(200), RR(201), SDES(202), BYE(203), APP(204);
+		
+		/** The numeric placeholder. */
+		public final short pt;
+		
+		/** internal cache of values to enumerations. */
+		private static final Map<Integer, PayloadType> TYPES = new HashMap<>();
+		
+		
+		static
+		{
+			Arrays.stream(PayloadType.values()).forEach(t -> TYPES.put(Integer.valueOf(t.pt), t));
+		}
+		
+		
+		/**
+		 * Create an enumeration with a numeric value.
+		 * 
+		 * @param value The payload type value as per RFC3550 and extensions.
+		 */
+		private PayloadType(final int value)
+		{
+			pt = (short)(0xFF & value);
+		}
+		
+		
+		/**
+		 * Get a payload type enumeration from a packet value.
+		 * 
+		 * @param value The payload type value.
+		 * @return The corresponding enumeration instance.
+		 * 
+		 * @throws IllegalArgumentException If the value given is not valid.
+		 */
+		public static PayloadType fromTypeValue(final int value)
+		throws IllegalArgumentException
+		{
+			final PayloadType type = TYPES.get(Integer.valueOf(value));
+			if (type == null)
+			{
+				throw new IllegalArgumentException("Unknown type - " + String.valueOf(value));
+			}
+			
+			return type;
+		}
+		
 	}
 	
 	// Supported SDES types
@@ -52,13 +104,7 @@ public abstract class RTCPPacket
 	
 	
 	
-	
-	
-	
-	public boolean isCompund()
-	{
-		return false;
-	}
+
 	
 	
 	public boolean is(final PayloadType type)
@@ -68,6 +114,13 @@ public abstract class RTCPPacket
 		// check against type.
 		
 		return false;
+	}
+
+
+	public int length() 
+	{
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 	
