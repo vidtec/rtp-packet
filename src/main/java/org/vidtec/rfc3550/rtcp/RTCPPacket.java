@@ -1,4 +1,4 @@
-package org.vidtech.rfc3550.rtcp;
+package org.vidtec.rfc3550.rtcp;
 
 import java.util.Arrays;
 import java.util.HashMap;

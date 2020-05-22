@@ -1,7 +1,7 @@
-package org.vidtech.rfc3550.rtcp.types;
+package org.vidtec.rfc3550.rtcp.types;
 
-import org.vidtech.rfc3550.rtcp.RTCPPacket;
-import org.vidtech.rfc3550.rtp.RTPPacket;
+import org.vidtec.rfc3550.rtcp.RTCPPacket;
+import org.vidtec.rfc3550.rtp.RTPPacket;
 
 /**
  * 
