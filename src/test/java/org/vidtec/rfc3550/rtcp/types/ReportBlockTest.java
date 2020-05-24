@@ -3,7 +3,7 @@ package org.vidtec.rfc3550.rtcp.types;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
-import org.vidtec.rfc3550.rtcp.TransmissionStatistics;
+import org.vidtec.rfc3550.rtcp.stats.TransmissionStatistics;
 import org.vidtec.rfc3550.rtcp.types.ReportRTCPPacket.ReportBlock;
 
 @Test

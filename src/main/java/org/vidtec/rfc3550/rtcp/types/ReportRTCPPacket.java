@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.vidtec.rfc3550.rtcp.TransmissionStatistics;
+import org.vidtec.rfc3550.rtcp.stats.TransmissionStatistics;
 
 /**
  * An implementation of an RTCP report-related packet types (SR/RR) according to RFC 3550/.

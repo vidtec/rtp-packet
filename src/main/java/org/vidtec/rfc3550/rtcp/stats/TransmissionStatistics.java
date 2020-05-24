@@ -1,4 +1,4 @@
-package org.vidtec.rfc3550.rtcp;
+package org.vidtec.rfc3550.rtcp.stats;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
