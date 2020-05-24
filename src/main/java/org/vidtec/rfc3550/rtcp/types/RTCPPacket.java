@@ -18,9 +18,9 @@ public abstract class RTCPPacket
 	//    0                   1                   2                   3
 	//    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 	//   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	//   |V=2|P|   RC    |       PT      |            length             |
+	//   |V=2|P|   ??    |       PT      |            length             |
 	//   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	//   |           synchronization source (SSRC) identifier            |
+	//   |                     packet type specific                      |
 	//   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 	// RTCP packets must be 32-bit boundary aligned.
@@ -29,6 +29,64 @@ public abstract class RTCPPacket
 	//  - the overall packet size cannot exceed MTU of the transport.
 	
 	
+	/** The RTCP version constant. */
+	public static final short VERSION = 2;
+
+	
+	/** The packet payload type */
+	private final PayloadType type;
+	
+	
+	/**
+	 * Create an RTCP packet.
+	 * 
+	 * @param type The payload type for this packet.
+	 */
+	protected RTCPPacket(final PayloadType type)
+	{
+		this.type = type;
+	}
+	
+	
+	/**
+	 * Check if this packet is of a given type.
+	 * 
+	 * @param type The payload type to compare against.
+	 * @return true if the types match, false otherwise.
+	 */
+	public boolean is(final PayloadType type)
+	{
+		return type == null ? false : this.type.equals(type);
+	}
+
+	
+	/**
+	 * Get the packet payload type.
+	 * 
+	 * @return The packet's payload type.
+	 */
+	public PayloadType payloadType()
+	{
+		return type;
+	}
+	
+
+	/**
+	 * Return the full length of the packet in bytes.
+	 * 
+	 * @return The number of bytes required for this packet.
+	 */
+	public abstract int packetLength(); 
+	
+	
+	/**
+	 * Gets the packet data as a byte[].
+	 * 
+	 * @return a copy of the RDP packet data.
+	 */
+	public abstract byte[] asByteArray();
+	
+
 	/**
 	 * An enumeration of payload types.
 	 * 
@@ -87,66 +145,6 @@ public abstract class RTCPPacket
 			
 			return type;
 		}
-		
 	}
-	
-	// Supported SDES types
-	//
-	// END    end of SDES list 
-	// CNAME  canonical name   
-	// NAME   user name        
-	// EMAIL  user's electronic mail address  
-	// PHONE  user's phone number             
-	// LOC    geographic user location        
-	// TOOL   name of application or tool  
-	// NOTE   notice about the source     
-	// PRIV   private extensions  
-	
-	
-	
-
-	
-	
-	public boolean is(final PayloadType type)
-	{
-		// if compund cannot be ....
-		
-		// check against type.
-		
-		return false;
-	}
-
-
-	public int length() 
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	
-	
-	
-//	/**
-//	 * Creates a builder to manually build an {@link SenderReportRTCPPacket}.
-//	 * 
-//	 * @return The builder instance.
-//	 */
-//	public static SenderReportBuilder senderReportBuilder() 
-//	{
-//		return new SenderReportBuilder();
-//	}
-	
-	/**
-	 * Creates a builder to manually build an {@link ReceiverReportRTCPPacket}.
-	 * 
-	 * @return The builder instance.
-	 */
-//	public static ReceiverReportBuilder receiverReportBuilder() 
-//	{
-//		return new ReceiverReportBuilder();
-//	}
-	
-	
-	
-	
 	
 }

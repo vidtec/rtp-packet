@@ -79,7 +79,7 @@ public final class RTCPPackets
 	private int lengthAsPacket() 
 	{
 		// Iterate each packet, and sum the packet length, this is the compound length.
-		return packets.stream().flatMapToInt(packet -> IntStream.of(packet.length())).sum();
+		return packets.stream().flatMapToInt(packet -> IntStream.of(packet.packetLength())).sum();
 	}
 	
 	

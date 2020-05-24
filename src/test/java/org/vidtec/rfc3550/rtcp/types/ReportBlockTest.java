@@ -26,6 +26,8 @@ public class ReportBlockTest
 		assertEquals(b.lastSR(), 0x07000000, "lsr should be 0x07000000");
 		assertEquals(b.dlSR(), 0x08000000, "dlsr should be 0x08000000");
 
+		assertEquals(b.length(), 24, "report block size incorrect.");
+		assertEquals(b.asByteArray().length, 24, "report block data not reformed correctly.");
 		assertEquals(b.asByteArray(), data, "report block data not reformed correctly.");
 	}
 	
@@ -46,6 +48,8 @@ public class ReportBlockTest
 		assertEquals(b.lastSR(), 0xFFFFFFFF, "lsr should be 0xFFFFFFFF");
 		assertEquals(b.dlSR(), 0xFFFFFFFF, "dlsr should be 0xFFFFFFFF");
 
+		assertEquals(b.length(), 24, "report block size incorrect.");
+		assertEquals(b.asByteArray().length, 24, "report block data not reformed correctly.");
 		assertEquals(b.asByteArray(), data, "report block data not reformed correctly.");
 	}
 	
@@ -91,6 +95,8 @@ public class ReportBlockTest
 		assertEquals(b.lastSR(), 0x07000000L, "lsr should be 0x07000000");
 		assertEquals(b.dlSR(), 0x08000000L, "dlsr should be 0x08000000");
 
+		assertEquals(b.length(), 24, "report block size incorrect.");
+		assertEquals(b.asByteArray().length, 24, "report block data not reformed correctly.");
 		assertEquals(b.asByteArray(), data, "report block data not reformed correctly.");
 	}
 	
@@ -116,6 +122,8 @@ public class ReportBlockTest
 		assertEquals(b.lastSR(), 0x07000000L, "lsr should be 0x07000000");
 		assertEquals(b.dlSR(), 0x08000000L, "dlsr should be 0x08000000");
 
+		assertEquals(b.length(), 24, "report block size incorrect.");
+		assertEquals(b.asByteArray().length, 24, "report block data not reformed correctly.");
 		assertEquals(b.asByteArray(), data, "report block data not reformed correctly.");
 	}
 	
@@ -141,6 +149,8 @@ public class ReportBlockTest
 		assertEquals(b.lastSR(), 0xFFFFFFFFL, "lsr should be 0xFFFFFFFF");
 		assertEquals(b.dlSR(), 0xFFFFFFFFL, "dlsr should be 0xFFFFFFFF");
 
+		assertEquals(b.length(), 24, "report block size incorrect.");
+		assertEquals(b.asByteArray().length, 24, "report block data not reformed correctly.");
 		assertEquals(b.asByteArray(), data, "report block data not reformed correctly.");
 	}
 	

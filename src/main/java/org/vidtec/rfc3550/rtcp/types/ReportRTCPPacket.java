@@ -1,6 +1,9 @@
 package org.vidtec.rfc3550.rtcp.types;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.vidtec.rfc3550.rtcp.TransmissionStatistics;
 
@@ -14,47 +17,55 @@ public abstract class ReportRTCPPacket extends RTCPPacket
 	/** The SSRC of the sender. */
 	private final long ssrcSenderIdentifier;
 	
-	/** The number of reports in this packet. */
-	private final short reportCount;
-	
 	/** The report blocks in this packet. */
-	private final ReportBlock[] reportBlocks;
+	private final List<ReportBlock> reportBlocks = new ArrayList<>();
 	
+	
+	/**
+	 * Create a Report RTCP packet.
+	 * 
+	 * @param type The packet type.
+	 * @param ssrcIdentifier The sender SSRC identifier.
+	 * @param blocks The list of report blocks.
+	 * 
+	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
+	 */
+	protected ReportRTCPPacket(final PayloadType type, final long ssrcIdentifier, final List<ReportBlock> blocks)
+	throws IllegalArgumentException
+	{
+		super(type);
 
-	
-	
-	
-	
-	
-	protected ReportRTCPPacket()
-	{
-		this.ssrcSenderIdentifier = 0;
-		this.reportCount = 0;
-		this.reportBlocks = null;
+		if (blocks.size() > 31) // 0x1F
+		{
+			throw new IllegalArgumentException("maximum report block size exceeded, expected at most 31, but was " + blocks.size());
+		}
+		
+		this.ssrcSenderIdentifier = ssrcIdentifier;
+		this.reportBlocks.addAll(blocks);
 	}
 	
 	
-	public void payloadType()
+	/**
+	 * Gets the sender's sync. source identifier.
+	 * 
+	 * @return The sender's ssrc identifier as a 32 bit unsigned integer.
+	 */
+	public long ssrcSenderIdentifier()
 	{
-		// get payload tyype - set by super class
+		return ssrcSenderIdentifier;
 	}
 	
 	
-	
-	
-	protected void packetLength()
+	/**
+	 * Gets the report blocks in this packet.
+	 * 
+	 * @return The report blocks.
+	 */
+	public List<ReportBlock> blocks()
 	{
-		// calc based on data
-		// super class overrides with class bits
+		return Collections.unmodifiableList(reportBlocks);
 	}
 	
-	protected void asPartialPacket()
-	{
-		// report specfic data added here.
-	}
-	
-	
-
 	
 	/**
 	 * A RTCP report block class.
@@ -83,7 +94,7 @@ public abstract class ReportRTCPPacket extends RTCPPacket
 
 		
 		/** The block size in bytes. */
-		private static final int BLOCK_SIZE = 4 * 6;
+		public static final int BLOCK_SIZE = 4 * 6;
 
 		
 		/** The synchronisation source identifier (SSRC). */
@@ -264,6 +275,16 @@ public abstract class ReportRTCPPacket extends RTCPPacket
 			return dlSR;
 		}
 
+		
+		/**
+		 * Get the block length.
+		 * 
+		 * @return The length of this report block.
+		 */
+		public int length()
+		{
+			return BLOCK_SIZE;
+		}
 		
 		
 		/**
