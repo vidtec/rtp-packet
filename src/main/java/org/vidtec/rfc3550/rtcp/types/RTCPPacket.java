@@ -1,5 +1,6 @@
 package org.vidtec.rfc3550.rtcp.types;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +11,7 @@ import java.util.Map;
  * 
  * TODO: support extensions as per RFC 3611
  */
-public abstract class RTCPPacket 
+public abstract class RTCPPacket<T> 
 {
 	
 	// RTCP Packet header format is defined as: (per RFC 3550, section 6.1)
@@ -85,6 +86,88 @@ public abstract class RTCPPacket
 	 * @return a copy of the RDP packet data.
 	 */
 	public abstract byte[] asByteArray();
+	
+	
+	/**
+	 * Helper method to return the packet object as it's real class type (prevents casting in client code).
+	 * 
+	 * @return The concrete packet type <T>.
+	 */
+	@SuppressWarnings("unchecked")
+	public T asConcreteType()
+	{
+		return (T)this;
+	}
+	
+	
+	/**
+	 * A helper method to extract the RTCP packet type from a bytebuffer without
+	 * needing to decode the whole packet. 
+	 * 
+	 * NB: This method expects that the bytebuffer position is at the START of the RTCP packet.
+	 * NB: This method will mark and rewind, so the position of the buffer is not mutated
+	 *     as a side-effect of use before full decode.
+	 * 
+	 * @param buffer The ByteBuffer instance to check.
+	 * @return The payload type (if valid)
+	 * 
+	 * @throws IllegalArgumentException If the there is a problem extracting the payload type or it is invalid.
+	 */
+	public static PayloadType peekPayloadType(final ByteBuffer buffer)
+	throws IllegalArgumentException
+	{
+		buffer.mark();
+		try
+		{
+			if (buffer.remaining() < 2)
+			{
+				// not enough data in the packet.
+				throw new IllegalArgumentException("Invalid packet length - too short to peek type.");
+			}
+
+			// payload type is in second byte of packet.
+			return PayloadType.fromTypeValue(0xFF & buffer.getShort());
+		}
+		finally
+		{
+			buffer.reset();
+		}
+	}
+	
+	
+	/**
+	 * A helper method to extract the RTCP packet length from a bytebuffer without
+	 * needing to decode the whole packet. 
+	 * 
+	 * NB: This method expects that the bytebuffer position is at the START of the RTCP packet.
+	 * NB: This method will mark and rewind, so the position of the buffer is not mutated
+	 *     as a side-effect of use before full decode.
+	 * 
+	 * @param buffer The ByteBuffer instance to check.
+	 * @return The packet length (if valid).
+	 * 
+	 * @throws IllegalArgumentException If the there is a problem extracting the payload type or it is invalid.
+	 */
+	public static int peekStatedLength(final ByteBuffer buffer)
+	throws IllegalArgumentException
+	{
+		buffer.mark();
+		try
+		{
+			if (buffer.remaining() < 2)
+			{
+				// not enough data in the packet.
+				throw new IllegalArgumentException("Invalid packet length - too short to peek stated length.");
+			}
+
+			// Stated length is in bytes 3-4 of packet.
+			return 0x0000FFFF & buffer.getInt();
+		}
+		finally
+		{
+			buffer.reset();
+		}		
+	}
 	
 
 	/**

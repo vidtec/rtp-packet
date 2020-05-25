@@ -2,11 +2,15 @@ package org.vidtec.rfc3550.rtcp;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.RTCPPacket.PayloadType;
 
 /**
  * A container for RTCP packets. This is the entry point for 
@@ -18,8 +22,37 @@ public final class RTCPPackets
 {
 
 	/* The list of packets. */
-	private final List<RTCPPacket> packets = new ArrayList<>();
+	private final List<RTCPPacket<?>> packets = new ArrayList<>();
 	
+	
+	/**
+	 * Construct a packet container with decoded packets from a given byte[]
+	 * NB: This will validate the inbound data.
+	 * NB: The container will hold one or more RTCP packets, 
+	 *     use isCompound() to determine this.
+	 * 
+	 * @param builder The builder instance to construct a packet from.
+	 * 
+	 * @throws IllegalArgumentException If there is a problem with the validity of the data.
+	 */
+	private RTCPPackets(final Builder builder)
+	throws IllegalArgumentException
+	{
+		if (builder.packets.isEmpty())
+		{
+			throw new IllegalArgumentException("container must have at least one packet.");
+		}
+		if (builder.packets.size() > 1)
+		{
+			final PayloadType pt = builder.packets.get(0).payloadType();
+			if (!PayloadType.SR.equals(pt) && !PayloadType.RR.equals(pt))
+			{
+				throw new IllegalArgumentException("This looks like a compound packet, but first entry is NOT SR or RR.");
+			}
+		}
+		
+		this.packets.addAll(builder.packets);
+	}
 	
 	
 	/**
@@ -35,24 +68,75 @@ public final class RTCPPackets
 	private RTCPPackets(final byte[] data)
 	throws IllegalArgumentException
 	{
-		// packet must be at least minimum of one header
+		final ByteBuffer bb = ByteBuffer.wrap(data);
+
+		// packet must be at least minimum of one header (min 32 bits)
+		if (bb.remaining() < 4)
+		{
+			throw new IllegalArgumentException("Invalid packet length - too short.");
+		}
 		
+		// Determine if we THINK this is a compound packet 
+		// i.e. this packet length is more than declared length of first packet.
+		final int firstStatedLength = RTCPPacket.peekStatedLength(bb);
+		final boolean isCompound = firstStatedLength < bb.remaining();
 		
-		// wrap in byte buffer
+		if (isCompound)
+		{
+			// If we are compound ... first should be SR or RR
+			final PayloadType firstPayloadType = RTCPPacket.peekPayloadType(bb);
+			if (!PayloadType.SR.equals(firstPayloadType) && !PayloadType.RR.equals(firstPayloadType))
+			{
+				throw new IllegalArgumentException("This looks like a compound packet, but first entry is NOT SR or RR.");
+			}
+		}
 		
-		// while available == true
-		
-			// decode first packet
+		while (bb.hasRemaining())
+		{
+
+			// if bb.reamining < packetlength - thorw IAE
 			
-			// is there remaining ?? - if so repeast
+			// At the very least there must be a header remaining ... if not error time.
 			
+			
+			// Now parse based on the payload type.
+			final PayloadType payloadType = RTCPPacket.peekPayloadType(bb);
+			switch (payloadType)
+			{
+				case SR:
+				{
+//					packets.add(SenderReportRTCPPacket.fromByteArray(bb));
+					break;
+				}
+				case RR:
+				{
+//					packets.add(ReceiverReportRTCPPacket.fromByteArray(bb));
+					break;
+				}
+				case SDES:
+				{
+//					packets.add(SDESRTCPPacket.fromByteArray(bb));
+					break;
+				}
+				case APP:
+				{
+//					packets.add(AppRTCPPacket.fromByteArray(bb));
+					break;
+				}
+				case BYE:
+				{
+//					packets.add(ByeRTCPPacket.fromByteArray(bb));
+					break;
+				}
+			}
+		}
 		
-		// OR
 		
-		// inspect header
 		
-		// if header < totalength then - look ahead methods
 		
+		
+		// if remiaining data - error in packet
+		//		throw new IlleglArugE("Unexpected error - data remaining after packet decodes.");
 		
 		
 		
@@ -76,11 +160,32 @@ public final class RTCPPackets
 	 * @return The total length of all RTCP packets in the container.
 	 *         NB: This will be same as the packet length if only 1 packet is present.
 	 */
-	private int lengthAsPacket() 
+	public int lengthAsPacket() 
 	{
 		// Iterate each packet, and sum the packet length, this is the compound length.
 		return packets.stream().flatMapToInt(packet -> IntStream.of(packet.packetLength())).sum();
 	}
+	
+	
+	/**
+	 * Get the list of packets in the container.
+	 * 
+	 * @return A list of RTCP packets contained herein.
+	 */
+	public List<RTCPPacket<?>> packets()
+	{
+		return Collections.unmodifiableList(packets);
+	}
+	
+	
+	
+	
+	
+	public void visit(final RTCPPacketsVisitor visitor)
+	{
+//		packets.forEach(p -> visitor.visit(p.asConcreteType()));
+	}
+	
 	
 	
 	
@@ -122,12 +227,17 @@ public final class RTCPPackets
 	/**
 	 * Returns an RTCPPackets object derived from a given byte[].
 	 * NB: A payload may be one to more RTCP packets (compound), so a container is returned.
-	 * 
+	 *     
+	 *     
+	 * NB: FIXME - this method assumes that all packets are in the data[] given
+	 *             it does not handle re-assembly from multiple protocol layer (UDP)
+	 *             frames.    
+	 *             	 * 
 	 * @param packet DatagramPacket construct a RTCP packet(s) from.
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
-	public static RTCPPackets fromByteArrat(final byte[] data)
+	public static RTCPPackets fromByteArray(final byte[] data)
 	throws IllegalArgumentException
 	{
 		return new RTCPPackets(data);
@@ -145,8 +255,101 @@ public final class RTCPPackets
 	public static RTCPPackets fromDatagramPacket(final DatagramPacket packet)
 	throws IllegalArgumentException
 	{
-		return fromByteArrat(packet.getData());
+		return fromByteArray(packet.getData());
 	}
+	
+	
+	/**
+	 * Creates a builder to manually build an {@link RTCPPackets}.
+	 * 
+	 * @return The builder instance.
+	 */
+	public static Builder builder() 
+	{
+		return new Builder();
+	}
+
+	
+	/**
+	 * A Builder class to build {@link RTCPPackets} instances.
+	 */
+	public static final class Builder 
+	{
+		private List<RTCPPacket<?>> packets = new ArrayList<>();
+
+		
+		/**
+		 * Private constructor.
+		 */
+		private Builder() { /* Empty Constructor */ }
+
+
+		/**
+		 * This container should have packets.
+		 * 
+		 * @param packets A list of packets.
+		 * @return The builder instance.
+		 */
+		public Builder withPacket(final RTCPPacket<?> packet)
+		{
+			if (packet != null)
+			{
+				this.packets.add(packet);
+			}
+			
+			return this;
+		}
+		
+		
+		/**
+		 * This container should have packets.
+		 * 
+		 * @param packets A list of packets.
+		 * @return The builder instance.
+		 */
+		public Builder withPackets(final RTCPPacket<?> ... packets)
+		{
+			if (packets != null)
+			{
+				this.packets.addAll(Arrays.asList(packets));
+			}
+			
+			return this;
+		}
+
+		
+		/**
+		 * This container should have packets.
+		 * 
+		 * @param packets A list of packets.
+		 * @return The builder instance.
+		 */
+		public Builder withPackets(final List<RTCPPacket<?>> packets)
+		{
+			if (packets != null)
+			{
+				this.packets.addAll(packets);
+			}
+			
+			return this;
+		}
+
+		
+		/**
+		 * Build the packet.
+		 * 
+		 * @return The packet instance.
+		 * 
+		 * @throws IllegalArgumentException If there is a problem with the supplied packet data.
+		 */
+		public RTCPPackets build() 
+		{
+			return new RTCPPackets(this);
+		}
+	}
+	
+	
+	
 	
 	
 }

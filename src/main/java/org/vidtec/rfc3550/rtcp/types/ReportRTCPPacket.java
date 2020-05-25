@@ -11,7 +11,7 @@ import org.vidtec.rfc3550.rtcp.stats.TransmissionStatistics;
  * An implementation of an RTCP report-related packet types (SR/RR) according to RFC 3550/.
  * https://tools.ietf.org/html/rfc3550
  */
-public abstract class ReportRTCPPacket extends RTCPPacket
+public abstract class ReportRTCPPacket<T> extends RTCPPacket<T>
 {
 
 	/** The SSRC of the sender. */

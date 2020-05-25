@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
  * An implementation of an RTCP report-related packet types (SR/RR) according to RFC 3550 section 6.4.2.
  * https://tools.ietf.org/html/rfc3550
  */
-public class ReceiverReportRTCPPacket extends ReportRTCPPacket
+public class ReceiverReportRTCPPacket extends ReportRTCPPacket<ReceiverReportRTCPPacket>
 {
 	
 	// todo padding

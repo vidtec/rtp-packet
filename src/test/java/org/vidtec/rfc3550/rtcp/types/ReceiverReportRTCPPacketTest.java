@@ -16,6 +16,17 @@ import org.vidtec.rfc3550.rtcp.types.ReportRTCPPacket.ReportBlock;
 public class ReceiverReportRTCPPacketTest 
 {
 
+	
+	public void testCanCastSelfToConcreteType()
+	{
+		final ReceiverReportRTCPPacket r = ReceiverReportRTCPPacket.builder()
+				.withSsrc(20)
+				.build();
+		
+		final ReceiverReportRTCPPacket p = r.asConcreteType();
+		assertEquals(p.packetLength(), 8, "incorrect packet length");
+
+	}
 
 	public void testCanCreateEmptyRRPacketFromBuilder()
 	{
