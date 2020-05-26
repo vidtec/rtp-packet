@@ -10,9 +10,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.testng.annotations.Test;
+import org.vidtec.rfc3550.rtcp.types.ByeRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket.PayloadType;
-import org.vidtec.rfc3550.rtp.RTPPacket;
 import org.vidtec.rfc3550.rtcp.types.ReceiverReportRTCPPacket;
 
 @Test
@@ -65,6 +65,17 @@ public class RTCPPacketsTest
 			assertEquals(e.getMessage(), "Unknown type - 249");
 		}		
 				
+		try
+		{
+			// Invalid packet type in stream
+			byte[] data = { (byte)0x80, (byte)0xCB, 0x00, 0x04,
+					        (byte)0x80, (byte)0xF9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00 };
+			RTCPPackets.fromByteArray( data );
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "This looks like a compound packet, but first entry is NOT SR or RR.");
+		}		
 		
 		
 
@@ -90,16 +101,16 @@ public class RTCPPacketsTest
 	public void testCanCreatePacketsContainerFromMultiplePacketsAsByteArray()
 	{
 		byte[] data = { (byte)0x80, (byte)0xC9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00,
-				        (byte)0x80, (byte)0xC9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00 };
-		
-		RTCPPackets packets = RTCPPackets.fromByteArray( data );
+ 		  	   	        (byte)0x80, (byte)0xCB, 0x00, 0x04 };
 
-		assertEquals(packets.lengthAsPacket(), 16, "incorrect sizing");
+		RTCPPackets packets = RTCPPackets.fromByteArray( data );
+		
+		assertEquals(packets.lengthAsPacket(), 12, "incorrect sizing");
 		assertEquals(packets.isCompund(), true, "incorrect sizing");
 		assertTrue(packets.packets() != null, "packets should be valid");
 		assertEquals(packets.packets().size(), 2, "container should be compound");
 		assertEquals(packets.packets().get(0).payloadType(), PayloadType.RR, "container have valid order");
-		assertEquals(packets.packets().get(1).payloadType(), PayloadType.RR, "container have valid order");
+		assertEquals(packets.packets().get(1).payloadType(), PayloadType.BYE, "container have valid order");
 		
 		assertEquals(packets.asByteArray(), data, "packet not reassembled correctly.");
 	}
@@ -184,19 +195,17 @@ public class RTCPPacketsTest
 			assertEquals(e.getMessage(), "container must have at least one packet.");
 		}	
 		
-		
-		//todo validate if more than one packet, then first must be SR or RR
-		
-		
-//		if (builder.packets.size() > 1)
-//		{
-//			final PayloadType pt = builder.packets.get(0).payloadType();
-//			if (!PayloadType.SR.equals(pt) && !PayloadType.RR.equals(pt))
-//			{
-//				throw new IllegalArgumentException("a Compound packet must start with a packet of type SR or RR.");
-//			}
-//		}
-		
+		try
+		{
+			RTCPPackets.builder()
+					.withPacket( ByeRTCPPacket.builder().build() )
+					.withPacket( ReceiverReportRTCPPacket.builder().withSsrc(20).build() )
+					.build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "This looks like a compound packet, but first entry is NOT SR or RR.");
+		}
 		
 	}
 	

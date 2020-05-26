@@ -13,9 +13,6 @@ import java.util.stream.IntStream;
 public class ReceiverReportRTCPPacket extends ReportRTCPPacket<ReceiverReportRTCPPacket>
 {
 	
-	// todo padding
-	
-	
 	// RTCP Receiver Report Packet (RR) format is defined as: (per RFC 3550, section 6.4.2)
 	//
 	//         0                   1                   2                   3

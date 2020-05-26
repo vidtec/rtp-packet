@@ -25,7 +25,6 @@ public class ReceiverReportRTCPPacketTest
 		
 		final ReceiverReportRTCPPacket p = r.asConcreteType();
 		assertEquals(p.packetLength(), 8, "incorrect packet length");
-
 	}
 
 	public void testCanCreateEmptyRRPacketFromBuilder()
@@ -44,6 +43,8 @@ public class ReceiverReportRTCPPacketTest
 
 		assertTrue(r.blocks() != null, "incorrect blocks data");
 		assertTrue(r.blocks().isEmpty(), "incorrect blocks data");
+		assertTrue(!r.hasBlocks(), "incorrect blocks data");
+		assertEquals(r.blockCount(), 0, "incorrect blocks data");
 
 		assertEquals(r.ssrcSenderIdentifier(), 20, "incorrect ssrc sender");
 		
@@ -69,6 +70,8 @@ public class ReceiverReportRTCPPacketTest
 
 		assertTrue(r.blocks() != null, "incorrect blocks data");
 		assertTrue(r.blocks().isEmpty(), "incorrect blocks data");
+		assertTrue(!r.hasBlocks(), "incorrect blocks data");
+		assertEquals(r.blockCount(), 0, "incorrect blocks data");
 
 		assertEquals(r.ssrcSenderIdentifier(), 20, "incorrect ssrc sender");
 		
@@ -88,6 +91,8 @@ public class ReceiverReportRTCPPacketTest
 
 		assertTrue(r.blocks() != null, "incorrect blocks data");
 		assertTrue(r.blocks().isEmpty(), "incorrect blocks data");
+		assertTrue(!r.hasBlocks(), "incorrect blocks data");
+		assertEquals(r.blockCount(), 0, "incorrect blocks data");
 
 		assertEquals(r.ssrcSenderIdentifier(), 20, "incorrect ssrc sender");
 		
@@ -152,6 +157,8 @@ public class ReceiverReportRTCPPacketTest
 		assertTrue(r.blocks() != null, "incorrect blocks data");
 		assertTrue(!r.blocks().isEmpty(), "incorrect blocks data");
 		assertEquals(r.blocks().size(), 31, "incorrect blocks size");
+		assertTrue(r.hasBlocks(), "incorrect blocks data");
+		assertEquals(r.blockCount(), 31, "incorrect blocks data");
 
 		assertEquals(r.ssrcSenderIdentifier(), 0xFFFFFFFFL, "incorrect ssrc sender");
 		
@@ -186,6 +193,8 @@ public class ReceiverReportRTCPPacketTest
 		assertTrue(r.blocks() != null, "incorrect blocks data");
 		assertTrue(!r.blocks().isEmpty(), "incorrect blocks data");
 		assertEquals(r.blocks().size(), 2, "incorrect blocks size");
+		assertTrue(r.hasBlocks(), "incorrect blocks data");
+		assertEquals(r.blockCount(), 2, "incorrect blocks data");
 
 		assertEquals(r.ssrcSenderIdentifier(), 20, "incorrect ssrc sender");
 		
@@ -211,6 +220,8 @@ public class ReceiverReportRTCPPacketTest
 		assertTrue(r.blocks() != null, "incorrect blocks data");
 		assertTrue(!r.blocks().isEmpty(), "incorrect blocks data");
 		assertEquals(r.blocks().size(), 2, "incorrect blocks size");
+		assertTrue(r.hasBlocks(), "incorrect blocks data");
+		assertEquals(r.blockCount(), 2, "incorrect blocks data");
 
 		assertEquals(r.ssrcSenderIdentifier(), 20, "incorrect ssrc sender");
 		
@@ -265,6 +276,8 @@ public class ReceiverReportRTCPPacketTest
 		assertTrue(r.blocks() != null, "incorrect blocks data");
 		assertTrue(!r.blocks().isEmpty(), "incorrect blocks data");
 		assertEquals(r.blocks().size(), 31, "incorrect blocks size");
+		assertTrue(r.hasBlocks(), "incorrect blocks data");
+		assertEquals(r.blockCount(), 31, "incorrect blocks data");
 
 		assertEquals(r.ssrcSenderIdentifier(), 0xFFFFFFFFL, "incorrect ssrc sender");
 		

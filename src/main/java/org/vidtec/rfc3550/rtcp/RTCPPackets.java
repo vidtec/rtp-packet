@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import org.vidtec.rfc3550.rtcp.types.ByeRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket.PayloadType;
 import org.vidtec.rfc3550.rtcp.types.ReceiverReportRTCPPacket;
@@ -139,7 +140,7 @@ public final class RTCPPackets
 				}
 				case BYE:
 				{
-//					packets.add(ByeRTCPPacket.fromByteArray(bb));
+					packets.add(ByeRTCPPacket.fromByteArray(buffer));
 					break;
 				}
 			}

@@ -57,6 +57,28 @@ public abstract class ReportRTCPPacket<T> extends RTCPPacket<T>
 	
 	
 	/**
+	 * Indicates if this packet has report blocks.
+	 * 
+	 * @return true if blocks are present, false otherwise.
+	 */
+	public boolean hasBlocks() 
+	{
+		return !reportBlocks.isEmpty();
+	}
+	
+
+	/**
+	 * Gets the number of report block elements.
+	 * 
+	 * @return An integer count from 0 - 31.
+	 */
+	public short blockCount() 
+	{
+		return (short) reportBlocks.size();
+	}
+	
+	
+	/**
 	 * Gets the report blocks in this packet.
 	 * 
 	 * @return The report blocks.
