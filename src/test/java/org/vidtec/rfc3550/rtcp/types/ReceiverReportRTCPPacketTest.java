@@ -276,6 +276,15 @@ public class ReceiverReportRTCPPacketTest
 	{
 		try
 		{
+			ReceiverReportRTCPPacket.fromByteArray( null );
+			fail("Expected error");
+		}
+		catch(IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "packet data cannot be null", "wrong validation message");
+		}
+		try
+		{
 			ReceiverReportRTCPPacket.fromByteArray(new byte[] { (byte)0x80 } );
 			fail("Expected error");
 		}

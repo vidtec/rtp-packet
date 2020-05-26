@@ -120,6 +120,11 @@ public class ReceiverReportRTCPPacket extends ReportRTCPPacket<ReceiverReportRTC
 	public static ReceiverReportRTCPPacket fromByteArray(final byte[] data)
 	throws IllegalArgumentException
 	{
+		if (data == null)
+		{
+			throw new IllegalArgumentException("packet data cannot be null");
+		}
+		
 		final ByteBuffer bb = ByteBuffer.wrap(data);
 
 		if (bb.remaining() < MIN_HEAD_LENGTH)
