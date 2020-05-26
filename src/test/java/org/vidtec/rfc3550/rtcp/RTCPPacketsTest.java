@@ -1,13 +1,18 @@
 package org.vidtec.rfc3550.rtcp;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 
 import org.testng.annotations.Test;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket.PayloadType;
+import org.vidtec.rfc3550.rtp.RTPPacket;
 import org.vidtec.rfc3550.rtcp.types.ReceiverReportRTCPPacket;
 
 @Test
@@ -18,6 +23,16 @@ public class RTCPPacketsTest
 	{
 		try
 		{
+			// null
+			RTCPPackets.fromByteArray( null );
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "packet data cannot be null", "wrong validation message");
+		}
+				try
+		{
+			// too short
 			byte[] data = { (byte)0x80 };
 			RTCPPackets.fromByteArray( data );
 		}
@@ -26,9 +41,9 @@ public class RTCPPacketsTest
 			assertEquals(e.getMessage(), "Invalid packet length - too short.", "wrong validation message");
 		}
 		
-		
 		try
 		{
+			// SR/RR not first
 			byte[] data = { (byte)0x80, (byte)0xCA, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00,
 					        (byte)0x80, (byte)0xC9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00 };
 			RTCPPackets.fromByteArray( data );
@@ -38,7 +53,17 @@ public class RTCPPacketsTest
 			assertEquals(e.getMessage(), "This looks like a compound packet, but first entry is NOT SR or RR.");
 		}
 		
-		
+		try
+		{
+			// Invalid packet type in stream
+			byte[] data = { (byte)0x80, (byte)0xC9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00,
+					        (byte)0x80, (byte)0xF9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00 };
+			RTCPPackets.fromByteArray( data );
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Unknown type - 249");
+		}		
 				
 		
 		
@@ -46,9 +71,37 @@ public class RTCPPacketsTest
 		
 	}
 
-	
 	public void testCanCreatePacketsContainerFromSinglePacketAsByteArray()
 	{
+		byte[] data = { (byte)0x80, (byte)0xC9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00 };
+		
+		RTCPPackets packets = RTCPPackets.fromByteArray( data );
+
+		assertEquals(packets.lengthAsPacket(), 8, "incorrect sizing");
+		assertEquals(packets.isCompund(), false, "container should not be compound");
+		assertTrue(packets.packets() != null, "packets should be valid");
+		assertEquals(packets.packets().size(), 1, "container should not be compound");
+		assertEquals(packets.packets().get(0).payloadType(), PayloadType.RR, "container should have valid order");
+		
+		assertEquals(packets.asByteArray(), data, "packet not reassembled correctly.");
+	}
+
+	
+	public void testCanCreatePacketsContainerFromMultiplePacketsAsByteArray()
+	{
+		byte[] data = { (byte)0x80, (byte)0xC9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00,
+				        (byte)0x80, (byte)0xC9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00 };
+		
+		RTCPPackets packets = RTCPPackets.fromByteArray( data );
+
+		assertEquals(packets.lengthAsPacket(), 16, "incorrect sizing");
+		assertEquals(packets.isCompund(), true, "incorrect sizing");
+		assertTrue(packets.packets() != null, "packets should be valid");
+		assertEquals(packets.packets().size(), 2, "container should be compound");
+		assertEquals(packets.packets().get(0).payloadType(), PayloadType.RR, "container have valid order");
+		assertEquals(packets.packets().get(1).payloadType(), PayloadType.RR, "container have valid order");
+		
+		assertEquals(packets.asByteArray(), data, "packet not reassembled correctly.");
 	}
 
 	
@@ -145,6 +198,43 @@ public class RTCPPacketsTest
 //		}
 		
 		
+	}
+	
+	
+	public void testCanBuildRTCPPacketsFromDatagramPacketCorrectly()
+	{
+		byte[] data = { (byte)0x80, (byte)0xC9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00,
+						(byte)0x80, (byte)0xC9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00 };
+
+		DatagramPacket dp = new DatagramPacket(data, data.length);
+		RTCPPackets packets = RTCPPackets.fromDatagramPacket( dp );
+		
+		assertEquals(packets.lengthAsPacket(), 16, "incorrect sizing");
+		assertEquals(packets.isCompund(), true, "incorrect sizing");
+		assertTrue(packets.packets() != null, "packets should be valid");
+		assertEquals(packets.packets().size(), 2, "container should be compound");
+		assertEquals(packets.packets().get(0).payloadType(), PayloadType.RR, "container have valid order");
+		assertEquals(packets.packets().get(1).payloadType(), PayloadType.RR, "container have valid order");
+		
+		assertEquals(packets.asByteArray(), data, "packet not reassembled correctly.");
+	}
+	
+	
+	public void testCanBuildDatagramPacketFromObjectCorrectly() throws UnknownHostException
+	{
+		byte[] data = { (byte)0x80, (byte)0xC9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00,
+						(byte)0x80, (byte)0xC9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00 };
+		
+		final RTCPPackets p = RTCPPackets.fromByteArray(data);
+
+		DatagramPacket d = p.asDatagramPacket(InetAddress.getByName("192.168.1.1"), 25000);
+		assertEquals(d.getAddress().getHostAddress(), "192.168.1.1", "incorrect inet address");
+		assertEquals(d.getPort(), 25000, "incorrect port");
+		assertEquals(d.getLength(), data.length, "incorrect length");
+		assertEquals(d.getData(), data, "incorrect data");
+
+		RTCPPackets packets = RTCPPackets.fromDatagramPacket( d );
+		assertEquals(packets.asByteArray(), data, "packet not reassembled correctly.");
 	}
 	
 }

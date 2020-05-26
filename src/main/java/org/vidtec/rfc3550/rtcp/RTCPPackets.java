@@ -11,6 +11,7 @@ import java.util.stream.IntStream;
 
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket.PayloadType;
+import org.vidtec.rfc3550.rtcp.types.ReceiverReportRTCPPacket;
 
 /**
  * A container for RTCP packets. This is the entry point for 
@@ -68,6 +69,11 @@ public final class RTCPPackets
 	private RTCPPackets(final byte[] data)
 	throws IllegalArgumentException
 	{
+		if (data == null)
+		{
+			throw new IllegalArgumentException("packet data cannot be null");
+		}
+		
 		final ByteBuffer bb = ByteBuffer.wrap(data);
 
 		// packet must be at least minimum of one header (min 32 bits)
@@ -94,13 +100,21 @@ public final class RTCPPackets
 		while (bb.hasRemaining())
 		{
 
-			// if bb.reamining < packetlength - thorw IAE
+			final int nextPacketLength = RTCPPacket.peekStatedLength(bb);
 			
-			// At the very least there must be a header remaining ... if not error time.
-			
+// if bb.reamining < packetlength - thorw IAE
+
+// At the very least there must be a header remaining ... if not error time.
+
+
+			// Work out the packet type.
+			final PayloadType payloadType = RTCPPacket.peekPayloadType(bb);
+
+			// Read the packet data,
+			final byte[] buffer = new byte[nextPacketLength];
+			bb.get(buffer);
 			
 			// Now parse based on the payload type.
-			final PayloadType payloadType = RTCPPacket.peekPayloadType(bb);
 			switch (payloadType)
 			{
 				case SR:
@@ -110,7 +124,7 @@ public final class RTCPPackets
 				}
 				case RR:
 				{
-//					packets.add(ReceiverReportRTCPPacket.fromByteArray(bb));
+					packets.add(ReceiverReportRTCPPacket.fromByteArray(buffer));
 					break;
 				}
 				case SDES:
@@ -204,7 +218,12 @@ public final class RTCPPackets
 	 */
 	public byte[] asByteArray()
 	{
-		return null;
+		final byte[] data = new byte[lengthAsPacket()];
+		final ByteBuffer bb = ByteBuffer.wrap(data);
+		
+		packets.stream().forEach(p -> bb.put(p.asByteArray()));
+		
+		return data;
 	}
 	
 	
