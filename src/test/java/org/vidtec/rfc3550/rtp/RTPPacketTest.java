@@ -567,6 +567,15 @@ public class RTPPacketTest
 	
 	public void testByteArrayConstuctorValidatesPacketCorrectly()
 	{
+		try
+		{
+			RTPPacket.fromByteArray( null );
+			fail("Expected error");
+		}
+		catch(IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "packet data cannot be null", "wrong validation message");
+		}
 		try 
 		{ 
 			// Not enough header - v short.
