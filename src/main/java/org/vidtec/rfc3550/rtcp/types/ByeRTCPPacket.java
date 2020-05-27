@@ -38,7 +38,7 @@ public class ByeRTCPPacket extends RTCPPacket<ByeRTCPPacket>
 	
 	
 	/**
-	 * Create a (RR) Receiver Report RTCP packet from a builder.
+	 * Create a (BYE) Bye RTCP packet from a builder.
 	 * NB: This constructor will validate the packet data is valid as per RFC 3550.
 	 * 
 	 * @param builder The builder instance to construct a packet from.
@@ -274,7 +274,7 @@ public class ByeRTCPPacket extends RTCPPacket<ByeRTCPPacket>
 	
 	
 	/**
-	 * A ReceiverReportBuilder class to build {@link ByeRTCPPacket} instances.
+	 * A ByeBuilder class to build {@link ByeRTCPPacket} instances.
 	 */
 	public static final class ByeBuilder 
 	{
