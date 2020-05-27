@@ -13,6 +13,7 @@ import org.vidtec.rfc3550.rtcp.types.ByeRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket.PayloadType;
 import org.vidtec.rfc3550.rtcp.types.ReceiverReportRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.SenderReportRTCPPacket;
 
 /**
  * A container for RTCP packets. This is the entry point for 
@@ -120,7 +121,7 @@ public final class RTCPPackets
 			{
 				case SR:
 				{
-//					packets.add(SenderReportRTCPPacket.fromByteArray(bb));
+					packets.add(SenderReportRTCPPacket.fromByteArray(buffer));
 					break;
 				}
 				case RR:
@@ -193,18 +194,45 @@ public final class RTCPPackets
 	}
 	
 	
-	
-	
-	
+	/**
+	 * Visit all the packets in this container with a visitor that performs some actions.
+	 * 
+	 * @param visitor A visitor instance to interrogate the packets.
+	 */
 	public void visit(final RTCPPacketsVisitor visitor)
 	{
-//		packets.forEach(p -> visitor.visit(p.asConcreteType()));
+		for (RTCPPacket<?> p : packets)
+		{
+			switch (p.payloadType())
+			{
+				case SR:
+				{
+					visitor.visit((SenderReportRTCPPacket)p);
+					break;
+				}
+				case RR:
+				{
+					visitor.visit((ReceiverReportRTCPPacket)p);
+					break;
+				}
+				case SDES:
+				{
+//					visitor.visit((SdesRTCPPacket)p);
+					break;
+				}
+				case APP:
+				{
+//					visitor.visit((AppRTCPPacket)p);
+					break;
+				}
+				case BYE:
+				{
+					visitor.visit((ByeRTCPPacket)p);
+					break;
+				}
+			}
+		}
 	}
-	
-	
-	
-	
-	
 	
 	
 // FIXME - refactor - use byte[][] and list - detaulf method takes mtu DEFAULT - can override	

@@ -14,6 +14,7 @@ import org.vidtec.rfc3550.rtcp.types.ByeRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket.PayloadType;
 import org.vidtec.rfc3550.rtcp.types.ReceiverReportRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.SenderReportRTCPPacket;
 
 @Test
 public class RTCPPacketsTest 
@@ -95,6 +96,16 @@ public class RTCPPacketsTest
 		assertEquals(packets.packets().get(0).payloadType(), PayloadType.RR, "container should have valid order");
 		
 		assertEquals(packets.asByteArray(), data, "packet not reassembled correctly.");
+		
+		CountingVisitor v = new CountingVisitor();
+		packets.visit(v);
+
+		assertEquals(v.total, 1, "visitor not correct");
+		assertEquals(v.sr, 0, "visitor not correct");
+		assertEquals(v.rr, 1, "visitor not correct");
+		assertEquals(v.sdes, 0, "visitor not correct");
+		assertEquals(v.app, 0, "visitor not correct");
+		assertEquals(v.bye, 0, "visitor not correct");
 	}
 
 	
@@ -113,12 +124,42 @@ public class RTCPPacketsTest
 		assertEquals(packets.packets().get(1).payloadType(), PayloadType.BYE, "container have valid order");
 		
 		assertEquals(packets.asByteArray(), data, "packet not reassembled correctly.");
+
+		CountingVisitor v = new CountingVisitor();
+		packets.visit(v);
+
+		assertEquals(v.total, 2, "visitor not correct");
+		assertEquals(v.sr, 0, "visitor not correct");
+		assertEquals(v.rr, 1, "visitor not correct");
+		assertEquals(v.sdes, 0, "visitor not correct");
+		assertEquals(v.app, 0, "visitor not correct");
+		assertEquals(v.bye, 1, "visitor not correct");
+		
+		byte[] data2 = { (byte)0x80, (byte)0xC8, 0x00, 0x1C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			  	   	    (byte)0x80, (byte)0xCB, 0x00, 0x04 };
+		
+		packets = RTCPPackets.fromByteArray( data2 );
+		
+		assertEquals(packets.lengthAsPacket(), 32, "incorrect sizing");
+		assertEquals(packets.isCompund(), true, "incorrect sizing");
+		assertTrue(packets.packets() != null, "packets should be valid");
+		assertEquals(packets.packets().size(), 2, "container should be compound");
+		assertEquals(packets.packets().get(0).payloadType(), PayloadType.SR, "container have valid order");
+		assertEquals(packets.packets().get(1).payloadType(), PayloadType.BYE, "container have valid order");
+		
+//		assertEquals(packets.asByteArray(), data2, "packet not reassembled correctly.");
+		
+		v = new CountingVisitor();
+		packets.visit(v);
+		
+		assertEquals(v.total, 2, "visitor not correct");
+		assertEquals(v.sr, 1, "visitor not correct");
+		assertEquals(v.rr, 0, "visitor not correct");
+		assertEquals(v.sdes, 0, "visitor not correct");
+		assertEquals(v.app, 0, "visitor not correct");
+		assertEquals(v.bye, 1, "visitor not correct");
 	}
 
-	
-	
-	
-	
 	
 	public void testCanCreatePacketsContainerFromBuilder()
 	{
@@ -131,6 +172,16 @@ public class RTCPPacketsTest
 		assertEquals(p.isCompund(), false, "incorrect packet container");
 		assertEquals(p.lengthAsPacket(), 8, "incorrect packet length");
 
+		CountingVisitor v = new CountingVisitor();
+		p.visit(v);
+
+		assertEquals(v.total, 1, "visitor not correct");
+		assertEquals(v.sr, 0, "visitor not correct");
+		assertEquals(v.rr, 1, "visitor not correct");
+		assertEquals(v.sdes, 0, "visitor not correct");
+		assertEquals(v.app, 0, "visitor not correct");
+		assertEquals(v.bye, 0, "visitor not correct");
+
 		p = RTCPPackets.builder()
 				.withPacket( ReceiverReportRTCPPacket.builder().withSsrc(20).build() )
 				.withPacket( ReceiverReportRTCPPacket.builder().withSsrc(20).build() )
@@ -141,6 +192,16 @@ public class RTCPPacketsTest
 		assertEquals(p.packets().get(1).payloadType(), PayloadType.RR, "incorrect packet set");
 		assertEquals(p.isCompund(), true, "incorrect packet container");
 		assertEquals(p.lengthAsPacket(), 16, "incorrect packet length");
+
+		v = new CountingVisitor();
+		p.visit(v);
+
+		assertEquals(v.total, 2, "visitor not correct");
+		assertEquals(v.sr, 0, "visitor not correct");
+		assertEquals(v.rr, 2, "visitor not correct");
+		assertEquals(v.sdes, 0, "visitor not correct");
+		assertEquals(v.app, 0, "visitor not correct");
+		assertEquals(v.bye, 0, "visitor not correct");
 
 		p = RTCPPackets.builder()
 				.withPackets( ReceiverReportRTCPPacket.builder().withSsrc(20).build(),
@@ -155,6 +216,16 @@ public class RTCPPacketsTest
 		assertEquals(p.isCompund(), true, "incorrect packet container");
 		assertEquals(p.lengthAsPacket(), 24, "incorrect packet length");
 
+		v = new CountingVisitor();
+		p.visit(v);
+
+		assertEquals(v.total, 3, "visitor not correct");
+		assertEquals(v.sr, 0, "visitor not correct");
+		assertEquals(v.rr, 3, "visitor not correct");
+		assertEquals(v.sdes, 0, "visitor not correct");
+		assertEquals(v.app, 0, "visitor not correct");
+		assertEquals(v.bye, 0, "visitor not correct");
+
 		p = RTCPPackets.builder()
 				.withPackets(  Arrays.asList(ReceiverReportRTCPPacket.builder().withSsrc(20).build(),
 								             ReceiverReportRTCPPacket.builder().withSsrc(20).build() ))
@@ -165,6 +236,40 @@ public class RTCPPacketsTest
 		assertEquals(p.packets().get(1).payloadType(), PayloadType.RR, "incorrect packet set");
 		assertEquals(p.isCompund(), true, "incorrect packet container");
 		assertEquals(p.lengthAsPacket(), 16, "incorrect packet length");
+
+		v = new CountingVisitor();
+		p.visit(v);
+
+		assertEquals(v.total, 2, "visitor not correct");
+		assertEquals(v.sr, 0, "visitor not correct");
+		assertEquals(v.rr, 2, "visitor not correct");
+		assertEquals(v.sdes, 0, "visitor not correct");
+		assertEquals(v.app, 0, "visitor not correct");
+		assertEquals(v.bye, 0, "visitor not correct");
+		
+
+		p = RTCPPackets.builder()
+				.withPackets( SenderReportRTCPPacket.builder().withSsrc(20).build(),
+					          ReceiverReportRTCPPacket.builder().withSsrc(20).build(), 
+							  ByeRTCPPacket.builder().build() )
+				.build();
+			
+		assertEquals(p.packets().size(), 3, "incorrect packet size");
+		assertEquals(p.packets().get(0).payloadType(), PayloadType.SR, "incorrect packet set");
+		assertEquals(p.packets().get(1).payloadType(), PayloadType.RR, "incorrect packet set");
+		assertEquals(p.packets().get(2).payloadType(), PayloadType.BYE, "incorrect packet set");
+		assertEquals(p.isCompund(), true, "incorrect packet container");
+		assertEquals(p.lengthAsPacket(), 40, "incorrect packet length");
+
+		v = new CountingVisitor();
+		p.visit(v);
+
+		assertEquals(v.total, 3, "visitor not correct");
+		assertEquals(v.sr, 1, "visitor not correct");
+		assertEquals(v.rr, 1, "visitor not correct");
+		assertEquals(v.sdes, 0, "visitor not correct");
+		assertEquals(v.app, 0, "visitor not correct");
+		assertEquals(v.bye, 1, "visitor not correct");
 	}
 
 	
@@ -206,6 +311,17 @@ public class RTCPPacketsTest
 		{
 			assertEquals(e.getMessage(), "This looks like a compound packet, but first entry is NOT SR or RR.");
 		}
+		try
+		{
+			RTCPPackets.builder()
+					.withPacket( ByeRTCPPacket.builder().build() )
+					.withPacket( SenderReportRTCPPacket.builder().withSsrc(20).build() )
+					.build();
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "This looks like a compound packet, but first entry is NOT SR or RR.");
+		}
 		
 	}
 	
@@ -226,6 +342,16 @@ public class RTCPPacketsTest
 		assertEquals(packets.packets().get(1).payloadType(), PayloadType.RR, "container have valid order");
 		
 		assertEquals(packets.asByteArray(), data, "packet not reassembled correctly.");
+
+		CountingVisitor v = new CountingVisitor();
+		packets.visit(v);
+
+		assertEquals(v.total, 2, "visitor not correct");
+		assertEquals(v.sr, 0, "visitor not correct");
+		assertEquals(v.rr, 2, "visitor not correct");
+		assertEquals(v.sdes, 0, "visitor not correct");
+		assertEquals(v.app, 0, "visitor not correct");
+		assertEquals(v.bye, 0, "visitor not correct");
 	}
 	
 	
@@ -244,6 +370,16 @@ public class RTCPPacketsTest
 
 		RTCPPackets packets = RTCPPackets.fromDatagramPacket( d );
 		assertEquals(packets.asByteArray(), data, "packet not reassembled correctly.");
+
+		CountingVisitor v = new CountingVisitor();
+		packets.visit(v);
+
+		assertEquals(v.total, 2, "visitor not correct");
+		assertEquals(v.sr, 0, "visitor not correct");
+		assertEquals(v.rr, 2, "visitor not correct");
+		assertEquals(v.sdes, 0, "visitor not correct");
+		assertEquals(v.app, 0, "visitor not correct");
+		assertEquals(v.bye, 0, "visitor not correct");
 	}
 	
 }

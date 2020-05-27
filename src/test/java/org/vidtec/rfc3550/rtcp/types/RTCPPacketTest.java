@@ -26,7 +26,6 @@ public class RTCPPacketTest
 		assertEquals(b.position(), 0, "incorrect start position after peek.");
 		assertEquals(b.remaining(), 8, "incorrect remaining after peek.");
 		assertEquals(b.limit(), 8, "incorrect limit after peek.");
-
 	}
 	
 	
