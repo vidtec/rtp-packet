@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import org.vidtec.rfc3550.rtcp.types.AppRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.ByeRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket.PayloadType;
@@ -105,8 +106,11 @@ public final class RTCPPackets
 			final int nextPacketLength = RTCPPacket.peekStatedLength(bb);
 			
 // if bb.reamining < packetlength - thorw IAE
+			// if remiaining data - error in packet
+			//		throw new IlleglArugE("Unexpected error - data remaining after packet decodes.");
 
 // At the very least there must be a header remaining ... if not error time.
+			
 
 
 			// Work out the packet type.
@@ -136,7 +140,7 @@ public final class RTCPPackets
 				}
 				case APP:
 				{
-//					packets.add(AppRTCPPacket.fromByteArray(bb));
+					packets.add(AppRTCPPacket.fromByteArray(buffer));
 					break;
 				}
 				case BYE:
@@ -146,16 +150,6 @@ public final class RTCPPackets
 				}
 			}
 		}
-		
-		
-		
-		
-		
-		// if remiaining data - error in packet
-		//		throw new IlleglArugE("Unexpected error - data remaining after packet decodes.");
-		
-		
-		
 	}
 	
 	
@@ -222,7 +216,7 @@ public final class RTCPPackets
 				}
 				case APP:
 				{
-//					visitor.visit((AppRTCPPacket)p);
+					visitor.visit((AppRTCPPacket)p);
 					break;
 				}
 				case BYE:

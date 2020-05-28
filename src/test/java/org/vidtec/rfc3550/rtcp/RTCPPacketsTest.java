@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.testng.annotations.Test;
+import org.vidtec.rfc3550.rtcp.types.AppRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.ByeRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket.PayloadType;
@@ -147,7 +148,7 @@ public class RTCPPacketsTest
 		assertEquals(packets.packets().get(0).payloadType(), PayloadType.SR, "container have valid order");
 		assertEquals(packets.packets().get(1).payloadType(), PayloadType.BYE, "container have valid order");
 		
-//		assertEquals(packets.asByteArray(), data2, "packet not reassembled correctly.");
+		assertEquals(packets.asByteArray(), data2, "packet not reassembled correctly.");
 		
 		v = new CountingVisitor();
 		packets.visit(v);
@@ -158,6 +159,30 @@ public class RTCPPacketsTest
 		assertEquals(v.sdes, 0, "visitor not correct");
 		assertEquals(v.app, 0, "visitor not correct");
 		assertEquals(v.bye, 1, "visitor not correct");
+		
+		byte[] data3 = { (byte)0x80, (byte)0xC8, 0x00, 0x1C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+						 (byte)0x80, (byte)0xCC, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x20, 0x20, 0x20, 0x20 };
+		
+		packets = RTCPPackets.fromByteArray( data3 );
+		
+		assertEquals(packets.lengthAsPacket(), 40, "incorrect sizing");
+		assertEquals(packets.isCompund(), true, "incorrect sizing");
+		assertTrue(packets.packets() != null, "packets should be valid");
+		assertEquals(packets.packets().size(), 2, "container should be compound");
+		assertEquals(packets.packets().get(0).payloadType(), PayloadType.SR, "container have valid order");
+		assertEquals(packets.packets().get(1).payloadType(), PayloadType.APP, "container have valid order");
+		
+		assertEquals(packets.asByteArray(), data3, "packet not reassembled correctly.");
+		
+		v = new CountingVisitor();
+		packets.visit(v);
+		
+		assertEquals(v.total, 2, "visitor not correct");
+		assertEquals(v.sr, 1, "visitor not correct");
+		assertEquals(v.rr, 0, "visitor not correct");
+		assertEquals(v.sdes, 0, "visitor not correct");
+		assertEquals(v.app, 1, "visitor not correct");
+		assertEquals(v.bye, 0, "visitor not correct");
 	}
 
 	
@@ -251,24 +276,29 @@ public class RTCPPacketsTest
 		p = RTCPPackets.builder()
 				.withPackets( SenderReportRTCPPacket.builder().withSsrc(20).build(),
 					          ReceiverReportRTCPPacket.builder().withSsrc(20).build(), 
-							  ByeRTCPPacket.builder().build() )
+
+					          // SDES builder
+					          
+					          AppRTCPPacket.builder().withAppFields(0, "0000").withSsrc(20).build(),
+					          ByeRTCPPacket.builder().build() )
 				.build();
 			
-		assertEquals(p.packets().size(), 3, "incorrect packet size");
+		assertEquals(p.packets().size(), 4, "incorrect packet size");
 		assertEquals(p.packets().get(0).payloadType(), PayloadType.SR, "incorrect packet set");
 		assertEquals(p.packets().get(1).payloadType(), PayloadType.RR, "incorrect packet set");
-		assertEquals(p.packets().get(2).payloadType(), PayloadType.BYE, "incorrect packet set");
+		assertEquals(p.packets().get(2).payloadType(), PayloadType.APP, "incorrect packet set");
+		assertEquals(p.packets().get(3).payloadType(), PayloadType.BYE, "incorrect packet set");
 		assertEquals(p.isCompund(), true, "incorrect packet container");
-		assertEquals(p.lengthAsPacket(), 40, "incorrect packet length");
+		assertEquals(p.lengthAsPacket(), 52, "incorrect packet length");
 
 		v = new CountingVisitor();
 		p.visit(v);
 
-		assertEquals(v.total, 3, "visitor not correct");
+		assertEquals(v.total, 4, "visitor not correct");
 		assertEquals(v.sr, 1, "visitor not correct");
 		assertEquals(v.rr, 1, "visitor not correct");
 		assertEquals(v.sdes, 0, "visitor not correct");
-		assertEquals(v.app, 0, "visitor not correct");
+		assertEquals(v.app, 1, "visitor not correct");
 		assertEquals(v.bye, 1, "visitor not correct");
 	}
 

@@ -190,37 +190,31 @@ public class ByeRTCPPacketTest
 	}
 		
 	
-
-	
-	
 	public void testCanCreateSimpleByePacketFromByteArray()
 	{
-//		final byte[] data = { (byte)0x82, (byte)0xC9, 0x00, (byte)0x38, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x14, 
-//								    0x04, 0x03, 0x02, 0x01, 0x01, 0x03, 0x02, 0x01, 0x05, 0x04, 0x03, 0x02, 0x06, 0x03, 0x02, 0x01, 0x07, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
-//								    0x04, 0x03, 0x02, 0x01, 0x01, 0x03, 0x02, 0x01, 0x05, 0x04, 0x03, 0x02, 0x06, 0x03, 0x02, 0x01, 0x07, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00
-//		};
-//
-//		final ByeRTCPPacket r = ByeRTCPPacket.fromByteArray(data);
-//		
-//		assertEquals(r.packetLength(), 56, "incorrect packet length");
-//		assertTrue(r.is(PayloadType.RR), "incorrect payload type");
-//		assertTrue(!r.is(PayloadType.SDES), "incorrect payload type");
-//		assertTrue(!r.is(null), "incorrect payload type");
-//		assertEquals(r.payloadType(), PayloadType.RR, "incorrect payload type");
-//
-//		assertTrue(r.blocks() != null, "incorrect blocks data");
-//		assertTrue(!r.blocks().isEmpty(), "incorrect blocks data");
-//		assertEquals(r.blocks().size(), 2, "incorrect blocks size");
-//
-//		assertEquals(r.ssrcSenderIdentifier(), 20, "incorrect ssrc sender");
-//		
-//		assertEquals(r.asByteArray(), data, "packet data not reformed correctly.");
+		final byte[] data = { (byte)0x81, (byte)0xCB, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x14, 0x01, 0x30, 0x00, 0x00 };
+
+		final ByeRTCPPacket r = ByeRTCPPacket.fromByteArray(data);
+		
+		assertEquals(r.packetLength(), 12, "incorrect packet length");
+		assertTrue(r.is(PayloadType.BYE), "incorrect payload type");
+		assertTrue(!r.is(PayloadType.SDES), "incorrect payload type");
+		assertTrue(!r.is(null), "incorrect payload type");
+		assertEquals(r.payloadType(), PayloadType.BYE, "incorrect payload type");
+
+		assertTrue(r.reason() != null, "incorrect reason");
+		assertTrue(!r.reason().isEmpty(), "incorrect reason");
+		assertEquals(r.reason(), "0", "incorrect reason");
+
+		assertTrue(r.ssrcs() != null, "incorrect ssrcs");
+		assertTrue(r.hasSsrcs(), "incorrect ssrcs");
+		assertEquals(r.ssrcs(), new long[] { 20 }, "incorrect ssrcs");
+		assertEquals(r.ssrcCount(), 1, "incorrect ssrcs");
+		
+		assertEquals(r.asByteArray(), data, "packet data not reformed correctly.");		
 	}
 
 	
-	
-	
-// FIXME !!!!!!!	
 	public void testCanCreateSimpleByePacketFromByteArrayAtLimits()
 	{
 		final byte[] data = { (byte)0x9F, (byte)0xCB, 0x01, (byte)0x80, 

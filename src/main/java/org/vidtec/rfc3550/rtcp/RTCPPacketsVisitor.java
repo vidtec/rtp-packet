@@ -1,7 +1,9 @@
 package org.vidtec.rfc3550.rtcp;
 
+import org.vidtec.rfc3550.rtcp.types.AppRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.ByeRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.ReceiverReportRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.SdesRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.SenderReportRTCPPacket;
 
 /**
@@ -32,8 +34,26 @@ public interface RTCPPacketsVisitor
 	};
 	
 
+	/**
+	 * Handle a SDES RTCP packet in the packet stream.
+	 * 
+	 * @param packet The packet instance.
+	 */
+	default void visit(final SdesRTCPPacket packet)
+	{
+		// Do nothing
+	};	
 	
-//	SDES
+
+	/**
+	 * Handle a APP RTCP packet in the packet stream.
+	 * 
+	 * @param packet The packet instance.
+	 */
+	default void visit(final AppRTCPPacket packet)
+	{
+		// Do nothing
+	};
 	
 	
 	/**
@@ -45,8 +65,5 @@ public interface RTCPPacketsVisitor
 	{
 		// Do nothing
 	};
-	
-	
-// APP	
 	
 }
