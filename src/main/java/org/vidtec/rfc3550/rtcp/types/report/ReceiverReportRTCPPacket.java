@@ -1,4 +1,4 @@
-package org.vidtec.rfc3550.rtcp.types;
+package org.vidtec.rfc3550.rtcp.types.report;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -10,27 +10,17 @@ import java.util.stream.IntStream;
  * An implementation of an RTCP report-related packet types (SR/RR) according to RFC 3550 section 6.4.2.
  * https://tools.ietf.org/html/rfc3550
  */
-public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPacket>
+public class ReceiverReportRTCPPacket extends ReportRTCPPacket<ReceiverReportRTCPPacket>
 {
 	
-	// RTCP Sender Report Packet (SR) format is defined as: (per RFC 3550, section 6.4.1)
+	// RTCP Receiver Report Packet (RR) format is defined as: (per RFC 3550, section 6.4.2)
 	//
 	//         0                   1                   2                   3
 	//         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 	//        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	// header |V=2|P|    RC   |   PT=SR=200   |             length            |
+	// header |V=2|P|    RC   |   PT=RR=201   |             length            |
 	//        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	//        |                         SSRC of sender                        |
-	//        +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-	// sender |              NTP timestamp, most significant word             |
-	// info   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	//        |             NTP timestamp, least significant word             |
-	//        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	//        |                         RTP timestamp                         |
-	//        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	//        |                     sender's packet count                     |
-	//        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	//        |                      sender's octet count                     |
+	//        |                     SSRC of packet sender                     |
 	//        +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 	// report |                 SSRC_1 (SSRC of first source)                 |
 	// block  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -50,110 +40,40 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 	//        +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 	//        |                  profile-specific extensions                  |
 	//        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
+	
+	
 	
 	/** The minimum header length. */
-	private static final int MIN_HEAD_LENGTH = 28;
-	
-	
-	/** The NTP timestamp at the point this report was sent. */
-	private long ntpTimestamp;
-	
-	/** Equivalent RTP timestamp. */
-	private long rtpTimestamp;
-	
-	/** The number of packets transmitted by the sender. */
-	private long packetCount;
-	
-	/** The number of octets transmitted by the sender. */
-	private long octetCount;
+	private static final int MIN_HEAD_LENGTH = 8;
 	
 	
 	/**
-	 * Create a (SR) Sender Report RTCP packet from a builder.
+	 * Create a (RR) Receiver Report RTCP packet from a builder.
 	 * NB: This constructor will validate the packet data is valid as per RFC 3550.
 	 * 
 	 * @param builder The builder instance to construct a packet from.
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
-	private SenderReportRTCPPacket(final SenderReportBuilder builder)
+	private ReceiverReportRTCPPacket(final ReceiverReportBuilder builder)
 	throws IllegalArgumentException
 	{
-		super(PayloadType.SR, builder.ssrcIdentifier, builder.blocks);
-		
-		this.ntpTimestamp = builder.ntpTimestamp;
-		this.rtpTimestamp = builder.rtpTimestamp;
-		this.packetCount = builder.packetCount;
-		this.octetCount = builder.octetCount;
+		super(PayloadType.RR, builder.ssrcIdentifier, builder.blocks);
 	}
 
 	
 	/**
-	 * Create a (SR) Sender Report RTCP packet from values.
+	 * Create a (RR) Receiver Report RTCP packet from values.
 	 * NB: This constructor will validate the packet data is valid as per RFC 3550.
 	 * 
 	 * @param ssrcIdentifier The sender SSRC identifier.
-	 * @param ntpTimestamp The senders RTP timestamp at report time.
-	 * @param rtpTimestamp The senders NTP timestamp at report time.  
-	 * @param packetCount The packets sent since last report.
-	 * @param octetCount The octets sent since last report.
 	 * @param blocks The list of report blocks.
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
-	private SenderReportRTCPPacket(final long ssrcIdentifier, final long ntpTimestamp, final long rtpTimestamp, final long packetCount, final long octetCount, final List<ReportBlock> blocks)
+	private ReceiverReportRTCPPacket(final long ssrcIdentifier, final List<ReportBlock> blocks)
 	{
-		super(PayloadType.SR, ssrcIdentifier, blocks);
-		
-		this.ntpTimestamp = ntpTimestamp;
-		this.rtpTimestamp = rtpTimestamp;
-		this.packetCount = packetCount;
-		this.octetCount =  octetCount;
-	}
-	
-
-	/**
-	 * Get the NTP timestamp for this report.
-	 * 
-	 * @return The NTP timestamp as per RFC 3550.
-	 */
-	public long ntpTimestamp()
-	{
-		return ntpTimestamp;
-	}
-	
-	
-	/**
-	 * Get the RTP timestamp for this report.
-	 * 
-	 * @return The RTP timestamp as per RFC 3550.
-	 */
-	public long rtpTimestamp()
-	{
-		return rtpTimestamp;
-	}
-	
-	
-	/**
-	 * Get the number of packets sent since last report.
-	 * 
-	 * @return The packet count.
-	 */
-	public long packetCount()
-	{
-		return packetCount;
-	}
-	
-
-	/**
-	 * Get the number of octets (bytes) sent since last report.
-	 * 
-	 * @return The byte count.
-	 */
-	public long octetCount()
-	{
-		return octetCount;
+		super(PayloadType.RR, ssrcIdentifier, blocks);
 	}
 	
 	
@@ -181,11 +101,6 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 		bb.putShort((short)data.length);
 		bb.putInt((int)ssrcSenderIdentifier());
 		
-		bb.putLong(0xFFFFFFFFFFFFFFFFL & ntpTimestamp);
-		bb.putInt((int)(0xFFFFFFFFL & rtpTimestamp));
-		bb.putInt((int)(0xFFFFFFFFL & packetCount));
-		bb.putInt((int)(0xFFFFFFFFL & octetCount));
-		
 		blocks().forEach(block -> bb.put(block.asByteArray()));
 		
 		return data;
@@ -199,7 +114,7 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
-	public static SenderReportRTCPPacket fromByteArray(final byte[] data)
+	public static ReceiverReportRTCPPacket fromByteArray(final byte[] data)
 	throws IllegalArgumentException
 	{
 		if (data == null)
@@ -228,7 +143,7 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 		// Ensure that there is no padding - should not be present on this packet !!
 		if ((0x20 & firstByte) == 0x20)
 		{
-			throw new IllegalArgumentException("SR packet should never be padded, malformed packet found");
+			throw new IllegalArgumentException("RR packet should never be padded, malformed packet found");
 		}
 		
 		try
@@ -239,7 +154,7 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 		catch (IllegalArgumentException e)
 		{
 			// Wrong payload type.
-			throw new IllegalArgumentException("Invalid or unexpected packet type - should be " + PayloadType.SR.pt);
+			throw new IllegalArgumentException("Invalid or unexpected packet type - should be " + PayloadType.RR.pt);
 		}
 		
 		// Get the length, and validate.
@@ -253,14 +168,6 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 		// Get the sender SSRC
 		final long sssrc = 0xFFFFFFFFL & bb.getInt();
 		
-		// Get timestamps
-		final long ntpTimestamp = bb.getLong();
-		final long rtpTimestamp = 0xFFFFFFFFL & bb.getInt();
-
-		// Get counts
-		final long packetCount = 0xFFFFFFFFL & bb.getInt();
-		final long octetCount = 0xFFFFFFFFL & bb.getInt();
-		
 
 		// Get the blocks
 		final List<ReportBlock> blocks = new ArrayList<>();
@@ -271,38 +178,34 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 			blocks.add(ReportBlock.fromByteArray(buffer));
 		}
 		
-		return new SenderReportRTCPPacket(sssrc, ntpTimestamp, rtpTimestamp, packetCount, octetCount, blocks);
+		return new ReceiverReportRTCPPacket(sssrc, blocks);
 	}
 
 	
 	/**
-	 * Creates a builder to manually build an {@link SenderReportRTCPPacket}.
+	 * Creates a builder to manually build an {@link ReceiverReportRTCPPacket}.
 	 * 
 	 * @return The builder instance.
 	 */
-	public static SenderReportBuilder builder() 
+	public static ReceiverReportBuilder builder() 
 	{
-		return new SenderReportBuilder();
+		return new ReceiverReportBuilder();
 	}
 	
 	
 	/**
-	 * A SenderReportBuilder class to build {@link SenderReportRTCPPacket} instances.
+	 * A ReceiverReportBuilder class to build {@link ReceiverReportRTCPPacket} instances.
 	 */
-	public static final class SenderReportBuilder 
+	public static final class ReceiverReportBuilder 
 	{
 		private long ssrcIdentifier = -1;
-		private long ntpTimestamp = 0;
-		private long rtpTimestamp = -1;
-		private long packetCount = -1;
-		private long octetCount = -1;
 		private List<ReportBlock> blocks = new ArrayList<>();
 
 		
 		/**
 		 * Private constructor.
 		 */
-		private SenderReportBuilder() { /* Empty Constructor */ }
+		private ReceiverReportBuilder() { /* Empty Constructor */ }
 
 
 		/**
@@ -311,39 +214,9 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 		 * @param ssrc The ssrc identifier.
 		 * @return The builder instance.
 		 */
-		public SenderReportBuilder withSsrc(final long ssrc) 
+		public ReceiverReportBuilder withSsrc(final long ssrc) 
 		{
 			this.ssrcIdentifier = ssrc;
-			return this;
-		}
-	
-		
-		/**
-		 * This packet should have an ssrc identifier.
-		 * 
-		 * @param ntpTimestamp The ssrc identifier.
-		 * @param rtpTimestamp The ssrc identifier.
-		 * @return The builder instance.
-		 */
-		public SenderReportBuilder withTimestamps(final long ntpTimestamp, final long rtpTimestamp) 
-		{
-			this.ntpTimestamp = ntpTimestamp;
-			this.rtpTimestamp = rtpTimestamp;
-			return this;
-		}
-
-		
-		/**
-		 * This packet should have counts.
-		 * 
-		 * @param packetCount The number of packets sent since last report.
-		 * @param octetCount The number of octects (bytes) sent since last report.
-		 * @return The builder instance.
-		 */
-		public SenderReportBuilder withCounts(final long packetCount, final long octetCount) 
-		{
-			this.packetCount = packetCount;
-			this.octetCount = octetCount;
 			return this;
 		}
 		
@@ -354,7 +227,7 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 		 * @param blocks A variable args set of report blocks.
 		 * @return The builder instance.
 		 */
-		public SenderReportBuilder withReportBlocks(final ReportBlock ...blocks)
+		public ReceiverReportBuilder withReportBlocks(final ReportBlock ...blocks)
 		{
 			if (blocks != null)
 			{
@@ -371,7 +244,7 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 		 * @param blocks A list of report blocks.
 		 * @return The builder instance.
 		 */
-		public SenderReportBuilder withReportBlocks(final List<ReportBlock> blocks)
+		public ReceiverReportBuilder withReportBlocks(final List<ReportBlock> blocks)
 		{
 			if (blocks != null)
 			{
@@ -389,9 +262,9 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 		 * 
 		 * @throws IllegalArgumentException If there is a problem with the supplied packet data.
 		 */
-		public SenderReportRTCPPacket build() 
+		public ReceiverReportRTCPPacket build() 
 		{
-			return new SenderReportRTCPPacket(this);
+			return new ReceiverReportRTCPPacket(this);
 		}
 	}
 	

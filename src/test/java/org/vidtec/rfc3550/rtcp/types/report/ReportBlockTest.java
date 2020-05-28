@@ -1,10 +1,10 @@
-package org.vidtec.rfc3550.rtcp.types;
+package org.vidtec.rfc3550.rtcp.types.report;
 
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 import org.vidtec.rfc3550.rtcp.stats.TransmissionStatistics;
-import org.vidtec.rfc3550.rtcp.types.ReportRTCPPacket.ReportBlock;
+import org.vidtec.rfc3550.rtcp.types.report.ReportRTCPPacket.ReportBlock;
 
 @Test
 public class ReportBlockTest 

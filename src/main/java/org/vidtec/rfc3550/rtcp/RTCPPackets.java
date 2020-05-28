@@ -9,12 +9,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import org.vidtec.rfc3550.rtcp.types.AppRTCPPacket;
-import org.vidtec.rfc3550.rtcp.types.ByeRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket.PayloadType;
-import org.vidtec.rfc3550.rtcp.types.ReceiverReportRTCPPacket;
-import org.vidtec.rfc3550.rtcp.types.SenderReportRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.app.AppRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.bye.ByeRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.report.ReceiverReportRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.report.SenderReportRTCPPacket;
 
 /**
  * A container for RTCP packets. This is the entry point for 

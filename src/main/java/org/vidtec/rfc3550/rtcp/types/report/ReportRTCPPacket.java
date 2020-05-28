@@ -1,4 +1,4 @@
-package org.vidtec.rfc3550.rtcp.types;
+package org.vidtec.rfc3550.rtcp.types.report;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.vidtec.rfc3550.rtcp.stats.TransmissionStatistics;
+import org.vidtec.rfc3550.rtcp.types.RTCPPacket;
 
 /**
  * An implementation of an RTCP report-related packet types (SR/RR) according to RFC 3550/.

@@ -1,8 +1,10 @@
-package org.vidtec.rfc3550.rtcp.types;
+package org.vidtec.rfc3550.rtcp.types.app;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+
+import org.vidtec.rfc3550.rtcp.types.RTCPPacket;
 
 /**
  * An implementation of an RTCP app-related packet type according to RFC 3550 section 6.7.

@@ -10,12 +10,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.testng.annotations.Test;
-import org.vidtec.rfc3550.rtcp.types.AppRTCPPacket;
-import org.vidtec.rfc3550.rtcp.types.ByeRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket.PayloadType;
-import org.vidtec.rfc3550.rtcp.types.ReceiverReportRTCPPacket;
-import org.vidtec.rfc3550.rtcp.types.SenderReportRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.app.AppRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.bye.ByeRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.report.ReceiverReportRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.report.SenderReportRTCPPacket;
 
 @Test
 public class RTCPPacketsTest 

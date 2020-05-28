@@ -1,10 +1,10 @@
 package org.vidtec.rfc3550.rtcp;
 
-import org.vidtec.rfc3550.rtcp.types.AppRTCPPacket;
-import org.vidtec.rfc3550.rtcp.types.ByeRTCPPacket;
-import org.vidtec.rfc3550.rtcp.types.ReceiverReportRTCPPacket;
-import org.vidtec.rfc3550.rtcp.types.SdesRTCPPacket;
-import org.vidtec.rfc3550.rtcp.types.SenderReportRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.app.AppRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.bye.ByeRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.report.ReceiverReportRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.report.SenderReportRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.sdes.SdesRTCPPacket;
 
 /**
  * An interface for supporting visiting RTCP packets in a stream.

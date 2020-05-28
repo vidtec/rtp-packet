@@ -1,4 +1,4 @@
-package org.vidtec.rfc3550.rtcp.types;
+package org.vidtec.rfc3550.rtcp.types.app;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
