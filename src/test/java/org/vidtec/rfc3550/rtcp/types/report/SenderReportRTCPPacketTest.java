@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket.PayloadType;
-import org.vidtec.rfc3550.rtcp.types.report.ReportRTCPPacket.ReportBlock;
 
 @Test
 public class SenderReportRTCPPacketTest 

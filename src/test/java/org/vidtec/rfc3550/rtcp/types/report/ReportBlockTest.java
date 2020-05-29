@@ -1,10 +1,10 @@
 package org.vidtec.rfc3550.rtcp.types.report;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 import org.testng.annotations.Test;
 import org.vidtec.rfc3550.rtcp.stats.TransmissionStatistics;
-import org.vidtec.rfc3550.rtcp.types.report.ReportRTCPPacket.ReportBlock;
 
 @Test
 public class ReportBlockTest 
@@ -57,7 +57,17 @@ public class ReportBlockTest
 	{
 		try
 		{
+			ReportBlock.fromByteArray(null);
+			fail("should fail");
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "data cannot be null", "wrong validation message");
+		}
+		try
+		{
 			ReportBlock.fromByteArray(new byte[2]);
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -66,6 +76,7 @@ public class ReportBlockTest
 		try
 		{
 			ReportBlock.fromByteArray(new byte[40]);
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -160,6 +171,7 @@ public class ReportBlockTest
 		try
 		{
 			ReportBlock.builder().withSsrc(-1).build();
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -168,6 +180,7 @@ public class ReportBlockTest
 		try
 		{
 			ReportBlock.builder().withSsrc(0xFFFFFFFFFL).build();
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -176,6 +189,7 @@ public class ReportBlockTest
 		try
 		{
 			ReportBlock.builder().withSsrc(1).withExtendedSequenceNumber(-1).build();
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -184,6 +198,7 @@ public class ReportBlockTest
 		try
 		{
 			ReportBlock.builder().withSsrc(1).withExtendedSequenceNumber(0xFFFFFFFFFL).build();
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -193,6 +208,7 @@ public class ReportBlockTest
 		try
 		{
 			ReportBlock.builder().withSsrc(1).withExtendedSequenceNumber(1).withStatistics(-1, 0, 0).build();
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -201,6 +217,7 @@ public class ReportBlockTest
 		try
 		{
 			ReportBlock.builder().withSsrc(1).withExtendedSequenceNumber(1).withStatistics(0,-1, 0).build();
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -209,6 +226,7 @@ public class ReportBlockTest
 		try
 		{
 			ReportBlock.builder().withSsrc(1).withExtendedSequenceNumber(1).withStatistics(0, 0, -1).build();
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -217,6 +235,7 @@ public class ReportBlockTest
 		try
 		{
 			ReportBlock.builder().withSsrc(1).withExtendedSequenceNumber(1).withStatistics(0xFFF, 0, 0).build();
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -225,6 +244,7 @@ public class ReportBlockTest
 		try
 		{
 			ReportBlock.builder().withSsrc(1).withExtendedSequenceNumber(1).withStatistics(0,0xFFFFFFFL, 0).build();
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -233,6 +253,7 @@ public class ReportBlockTest
 		try
 		{
 			ReportBlock.builder().withSsrc(1).withExtendedSequenceNumber(1).withStatistics(0, 0, 0xFFFFFFFFFL).build();
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -241,6 +262,7 @@ public class ReportBlockTest
 		try
 		{
 			ReportBlock.builder().withSsrc(1).withExtendedSequenceNumber(1).withStatistics(0, 0, 0).withSenderReportData(-1, 0).build();
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -249,6 +271,7 @@ public class ReportBlockTest
 		try
 		{
 			ReportBlock.builder().withSsrc(1).withExtendedSequenceNumber(1).withStatistics(0, 0, 0).withSenderReportData(0, -1).build();
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -257,6 +280,7 @@ public class ReportBlockTest
 		try
 		{
 			ReportBlock.builder().withSsrc(1).withExtendedSequenceNumber(1).withStatistics(0, 0, 0).withSenderReportData(0xFFFFFFFFFL, 0).build();
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -265,6 +289,7 @@ public class ReportBlockTest
 		try
 		{
 			ReportBlock.builder().withSsrc(1).withExtendedSequenceNumber(1).withStatistics(0, 0, 0).withSenderReportData(0, 0xFFFFFFFFFL).build();
+			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
 		{
