@@ -390,6 +390,7 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 		 * @throws IllegalArgumentException If there is a problem with the supplied packet data.
 		 */
 		public SenderReportRTCPPacket build() 
+		throws IllegalArgumentException
 		{
 			return new SenderReportRTCPPacket(this);
 		}

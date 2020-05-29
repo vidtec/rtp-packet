@@ -826,6 +826,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 		 * @throws IllegalArgumentException If there is a problem with the supplied packet data.
 		 */
 		public RTPPacket build() 
+		throws IllegalArgumentException
 		{
 			return new RTPPacket(this);
 		}

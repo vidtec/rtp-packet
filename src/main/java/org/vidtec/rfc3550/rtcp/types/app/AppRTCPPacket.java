@@ -319,6 +319,7 @@ public class AppRTCPPacket extends RTCPPacket<AppRTCPPacket>
 		 * @throws IllegalArgumentException If there is a problem with the supplied packet data.
 		 */
 		public AppRTCPPacket build() 
+		throws IllegalArgumentException
 		{
 			return new AppRTCPPacket(this);
 		}

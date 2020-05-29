@@ -83,7 +83,7 @@ public abstract class RTCPPacket<T>
 	/**
 	 * Gets the packet data as a byte[].
 	 * 
-	 * @return a copy of the RDP packet data.
+	 * @return a copy of the RTCP packet data.
 	 */
 	public abstract byte[] asByteArray();
 	
@@ -146,7 +146,7 @@ public abstract class RTCPPacket<T>
 	 * @param buffer The ByteBuffer instance to check.
 	 * @return The packet length (if valid).
 	 * 
-	 * @throws IllegalArgumentException If the there is a problem extracting the payload type or it is invalid.
+	 * @throws IllegalArgumentException If the there is a problem extracting the payload length or it is invalid.
 	 */
 	public static int peekStatedLength(final ByteBuffer buffer)
 	throws IllegalArgumentException

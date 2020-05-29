@@ -385,6 +385,7 @@ public final class RTCPPackets
 		 * @throws IllegalArgumentException If there is a problem with the supplied packet data.
 		 */
 		public RTCPPackets build() 
+		throws IllegalArgumentException
 		{
 			return new RTCPPackets(this);
 		}

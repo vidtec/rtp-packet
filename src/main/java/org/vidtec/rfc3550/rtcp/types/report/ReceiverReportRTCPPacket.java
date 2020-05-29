@@ -263,6 +263,7 @@ public class ReceiverReportRTCPPacket extends ReportRTCPPacket<ReceiverReportRTC
 		 * @throws IllegalArgumentException If there is a problem with the supplied packet data.
 		 */
 		public ReceiverReportRTCPPacket build() 
+		throws IllegalArgumentException
 		{
 			return new ReceiverReportRTCPPacket(this);
 		}

@@ -34,7 +34,7 @@ public class PayloadTypeTest
 		try
 		{
 			PayloadType.fromTypeValue(20);
-			fail("expected to fail iwth exception");
+			fail("expected to fail with exception");
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -43,7 +43,7 @@ public class PayloadTypeTest
 		try
 		{
 			PayloadType.fromTypeValue(-1);
-			fail("expected to fail iwth exception");
+			fail("expected to fail with exception");
 		}
 		catch (IllegalArgumentException e)
 		{

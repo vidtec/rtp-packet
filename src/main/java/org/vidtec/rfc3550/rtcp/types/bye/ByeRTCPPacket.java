@@ -323,6 +323,7 @@ public class ByeRTCPPacket extends RTCPPacket<ByeRTCPPacket>
 		 * @throws IllegalArgumentException If there is a problem with the supplied packet data.
 		 */
 		public ByeRTCPPacket build() 
+		throws IllegalArgumentException
 		{
 			return new ByeRTCPPacket(this);
 		}
