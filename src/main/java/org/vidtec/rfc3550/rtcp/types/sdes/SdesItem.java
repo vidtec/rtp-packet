@@ -47,7 +47,6 @@ public final class SdesItem
 	 * @throws IllegalArgumentException If there is a problem with the supplied item data.
 	 */
 	private SdesItem(final ItemType type, final String value)
-	throws IllegalArgumentException
 	{
 		this(type, value, "");
 	}
@@ -63,7 +62,6 @@ public final class SdesItem
 	 * @throws IllegalArgumentException If there is a problem with the supplied item data.
 	 */
 	private SdesItem(final ItemType type, final String value, final String prefix)
-	throws IllegalArgumentException
 	{
 		if (value == null)
 		{

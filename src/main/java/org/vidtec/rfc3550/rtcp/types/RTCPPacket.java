@@ -218,7 +218,6 @@ public abstract class RTCPPacket<T>
 		 * @throws IllegalArgumentException If the value given is not valid.
 		 */
 		public static PayloadType fromTypeValue(final int value)
-		throws IllegalArgumentException
 		{
 			final PayloadType type = TYPES.get(Integer.valueOf(value));
 			if (type == null)

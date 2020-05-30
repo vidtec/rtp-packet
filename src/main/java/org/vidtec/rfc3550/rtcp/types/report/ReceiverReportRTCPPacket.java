@@ -170,7 +170,7 @@ public class ReceiverReportRTCPPacket extends ReportRTCPPacket<ReceiverReportRTC
 		
 
 		// Get the blocks
-		final List<ReportBlock> blocks = new ArrayList<>();
+		final List<ReportBlock> blocks = new ArrayList<>(blockCount);
 		final byte[] buffer = new byte[ReportBlock.BLOCK_SIZE];
 		for (int i = 0 ; i < blockCount ; i++)
 		{

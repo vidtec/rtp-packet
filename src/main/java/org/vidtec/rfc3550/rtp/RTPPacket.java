@@ -665,7 +665,6 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
 	public static RTPPacket fromByteArray(final byte[] data)
-	throws IllegalArgumentException
 	{
 		return new RTPPacket(data);
 	}
@@ -679,7 +678,6 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
 	public static RTPPacket fromDatagramPacket(final DatagramPacket packet)
-	throws IllegalArgumentException
 	{
 		return fromByteArray(packet.getData());
 	}
