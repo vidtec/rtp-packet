@@ -227,7 +227,7 @@ public class ByeRTCPPacket extends RTCPPacket<ByeRTCPPacket>
 		catch (IllegalArgumentException e)
 		{
 			// Wrong payload type.
-			throw new IllegalArgumentException("Invalid or unexpected packet type - should be " + PayloadType.BYE.pt);
+			throw new IllegalArgumentException("Invalid or unexpected packet type - should be " + PayloadType.BYE.pt, e);
 		}
 		
 		// Get the length, and validate.

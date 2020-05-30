@@ -115,7 +115,7 @@ public final class Chunk
 	 */
 	public List<SdesItem> items(final ItemType filter)
 	{
-		return items.stream().filter(f -> f.itemType().equals(filter)).collect(Collectors.toList());
+		return items.stream().filter(f -> f.itemType() == filter).collect(Collectors.toList());
 	}
 	
 

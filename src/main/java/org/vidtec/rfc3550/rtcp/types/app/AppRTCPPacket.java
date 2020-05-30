@@ -216,7 +216,7 @@ public class AppRTCPPacket extends RTCPPacket<AppRTCPPacket>
 		catch (IllegalArgumentException e)
 		{
 			// Wrong payload type.
-			throw new IllegalArgumentException("Invalid or unexpected packet type - should be " + PayloadType.APP.pt);
+			throw new IllegalArgumentException("Invalid or unexpected packet type - should be " + PayloadType.APP.pt, e);
 		}
 		
 		// Get the length, and validate.

@@ -154,7 +154,7 @@ public class ReceiverReportRTCPPacket extends ReportRTCPPacket<ReceiverReportRTC
 		catch (IllegalArgumentException e)
 		{
 			// Wrong payload type.
-			throw new IllegalArgumentException("Invalid or unexpected packet type - should be " + PayloadType.RR.pt);
+			throw new IllegalArgumentException("Invalid or unexpected packet type - should be " + PayloadType.RR.pt, e);
 		}
 		
 		// Get the length, and validate.

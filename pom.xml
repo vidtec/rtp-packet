@@ -55,7 +55,20 @@
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>
 				<configuration>
+					<excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
 					<effort>Max</effort>
+					<plugins>
+						<plugin>
+							<groupId>com.h3xstream.findsecbugs</groupId>
+							<artifactId>findsecbugs-plugin</artifactId>
+							<version>1.10.1</version>
+						</plugin>
+						<plugin>
+							<groupId>com.mebigfatguy.sb-contrib</groupId>
+							<artifactId>sb-contrib</artifactId>
+							<version>7.4.7</version>
+						</plugin>
+					</plugins>
 				</configuration>
 				<executions>
 					<execution>

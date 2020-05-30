@@ -57,7 +57,7 @@ public abstract class RTCPPacket<T>
 	 */
 	public boolean is(final PayloadType type)
 	{
-		return type == null ? false : this.type.equals(type);
+		return this.type == type;
 	}
 
 	

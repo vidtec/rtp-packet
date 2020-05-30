@@ -49,7 +49,7 @@ public final class RTCPPackets
 		if (builder.packets.size() > 1)
 		{
 			final PayloadType pt = builder.packets.get(0).payloadType();
-			if (!PayloadType.SR.equals(pt) && !PayloadType.RR.equals(pt))
+			if (!(PayloadType.SR == pt) && !(PayloadType.RR == pt))
 			{
 				throw new IllegalArgumentException("This looks like a compound packet, but first entry is NOT SR or RR.");
 			}
@@ -93,8 +93,8 @@ public final class RTCPPackets
 		if (isCompound)
 		{
 			// If we are compound ... first should be SR or RR
-			final PayloadType firstPayloadType = RTCPPacket.peekPayloadType(bb);
-			if (!PayloadType.SR.equals(firstPayloadType) && !PayloadType.RR.equals(firstPayloadType))
+			final PayloadType pt = RTCPPacket.peekPayloadType(bb);
+			if (!(PayloadType.SR == pt) && !(PayloadType.RR == pt))
 			{
 				throw new IllegalArgumentException("This looks like a compound packet, but first entry is NOT SR or RR.");
 			}

@@ -1,0 +1,43 @@
+<FindBugsFilter>
+	
+	<!-- These bugs are filtered out as they are style choice. -->
+	<Match>
+		<Bug pattern="FCBL_FIELD_COULD_BE_LOCAL" />
+		<Class name="org.vidtec.rfc3550.rtp.RTPPacket$Builder" />
+	</Match>
+	<Match>
+		<Bug pattern="FCBL_FIELD_COULD_BE_LOCAL" />
+		<Class name="org.vidtec.rfc3550.rtcp.types.app.AppRTCPPacket$AppBuilder" />
+	</Match>
+	<Match>
+		<Bug pattern="FCBL_FIELD_COULD_BE_LOCAL" />
+		<Class name="org.vidtec.rfc3550.rtcp.types.bye.ByeRTCPPacket$ByeBuilder" />
+	</Match>
+	<Match>
+		<Bug pattern="FCBL_FIELD_COULD_BE_LOCAL" />
+		<Class name="org.vidtec.rfc3550.rtcp.types.report.ReportBlock$Builder" />
+	</Match>
+	<Match>
+		<Bug pattern="FCBL_FIELD_COULD_BE_LOCAL" />
+		<Class name="org.vidtec.rfc3550.rtcp.types.report.SenderReportRTCPPacket$SenderReportBuilder" />
+	</Match>
+	<Match>
+		<Bug pattern="FCBL_FIELD_COULD_BE_LOCAL" />
+		<Class name="org.vidtec.rfc3550.rtcp.types.report.ReceiverReportRTCPPacket$ReceiverReportBuilder" />
+	</Match>
+	<Match>
+		<Bug pattern="FCBL_FIELD_COULD_BE_LOCAL" />
+		<Class name="org.vidtec.rfc3550.rtcp.types.sdes.Chunk$Builder" />
+	</Match>
+
+	<!-- This is safe to ignore here, as the collection can never grow. -->
+	<Match>
+		<Bug pattern="PMB_POSSIBLE_MEMORY_BLOAT" />
+		<Class name="org.vidtec.rfc3550.rtcp.types.RTCPPacket$PayloadType" />
+	</Match>
+	<Match>
+		<Bug pattern="PMB_POSSIBLE_MEMORY_BLOAT" />
+		<Class name="org.vidtec.rfc3550.rtcp.types.sdes.SdesItem$ItemType" />
+	</Match>
+
+</FindBugsFilter>

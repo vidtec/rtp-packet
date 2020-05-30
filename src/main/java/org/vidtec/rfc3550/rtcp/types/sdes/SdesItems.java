@@ -2,6 +2,7 @@ package org.vidtec.rfc3550.rtcp.types.sdes;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -41,7 +42,7 @@ final class SdesItems
 		while (!shouldStop)
 		{
 			final ItemType nextType = SdesItem.peekItemType(bb);
-			if (nextType.equals(ItemType.TERM))
+			if (ItemType.TERM == nextType)
 			{
 				// there must be enough bytes left in the buffer to align to q 4-byte boundary
 				// bytes to read = 4 - ((position - startpos) % 4)
@@ -112,7 +113,7 @@ final class SdesItems
 	 * 
 	 * @throws IllegalArgumentException If the items list is null.
 	 */
-	public static int byteLength(final List<SdesItem> items)
+	public static int byteLength(final Collection<SdesItem> items)
 	throws IllegalArgumentException
 	{
 		if (items == null)

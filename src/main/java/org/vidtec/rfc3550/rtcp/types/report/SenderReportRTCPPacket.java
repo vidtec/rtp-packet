@@ -239,7 +239,7 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 		catch (IllegalArgumentException e)
 		{
 			// Wrong payload type.
-			throw new IllegalArgumentException("Invalid or unexpected packet type - should be " + PayloadType.SR.pt);
+			throw new IllegalArgumentException("Invalid or unexpected packet type - should be " + PayloadType.SR.pt, e);
 		}
 		
 		// Get the length, and validate.

@@ -106,7 +106,6 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
 	private RTPPacket(final Builder builder) 
-	throws IllegalArgumentException
 	{
 		hasMarker = builder.hasMarker;
 		
@@ -198,7 +197,6 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
 	private RTPPacket(final byte[] data)
-	throws IllegalArgumentException
 	{
 		if (data == null)
 		{
@@ -264,7 +262,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 			csrcIdentifiers[i] = 0xFFFFFFFF & bb.getInt();
 		}
 		
-		if (hasExtension())
+		if (hasExtension)
 		{
 			if (bb.remaining() < 4 + 1)
 			{
@@ -826,7 +824,6 @@ public class RTPPacket implements Comparable<RTPPacket>
 		 * @throws IllegalArgumentException If there is a problem with the supplied packet data.
 		 */
 		public RTPPacket build() 
-		throws IllegalArgumentException
 		{
 			return new RTPPacket(this);
 		}

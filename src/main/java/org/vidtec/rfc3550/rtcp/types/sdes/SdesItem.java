@@ -74,7 +74,7 @@ public final class SdesItem
 			throw new IllegalArgumentException("prefix cannot be null");
 		}
 		
-		if (type.equals(ItemType.PRIV))
+		if (ItemType.PRIV == type)
 		{
 			final int valLength = value.getBytes(Charset.forName("utf-8")).length; 
 			if (valLength > 254)
@@ -110,7 +110,7 @@ public final class SdesItem
 	 */
 	public boolean is(final ItemType type)
 	{
-		return type == null ? false : this.type.equals(type);
+		return this.type == type;
 	}
 
 	
@@ -260,7 +260,7 @@ public final class SdesItem
 		String value = "";
 		String prefix = "";
 		
-		if (type.equals(ItemType.PRIV))
+		if (ItemType.PRIV == type)
 		{
 			final int prefixLength = 0xFF & bb.get();
 
@@ -408,7 +408,6 @@ public final class SdesItem
 		 * @throws IllegalArgumentException If the value given is not valid.
 		 */
 		public static ItemType fromTypeValue(final int value)
-		throws IllegalArgumentException
 		{
 			final ItemType type = TYPES.get(Integer.valueOf(value));
 			if (type == null)
