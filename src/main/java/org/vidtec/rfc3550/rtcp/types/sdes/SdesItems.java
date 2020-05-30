@@ -94,13 +94,35 @@ final class SdesItems
 		
 		final int itemsLength = items.stream().flatMapToInt(i -> IntStream.of(i.itemLength())).sum();
 		final int requiredNullCount = 4 - (itemsLength % 4);
-		final byte[] data = new byte[ items.isEmpty() ? 4 : itemsLength + requiredNullCount ];
+		final byte[] data = new byte[ itemsLength + requiredNullCount ];
 		final ByteBuffer bb = ByteBuffer.wrap(data);
 		
 		items.forEach(item -> bb.put(item.asByteArray()));
 		IntStream.range(0, requiredNullCount).forEach(i -> bb.put((byte) 0x00));
 		
 		return data;
+	}
+	
+	
+	/**
+	 * Calculate the byte length of an item list including any null padding required.
+	 * 
+	 * @param items The list of items.
+	 * @return The number of bytes required for the list.
+	 * 
+	 * @throws IllegalArgumentException If the items list is null.
+	 */
+	public static int byteLength(final List<SdesItem> items)
+	throws IllegalArgumentException
+	{
+		if (items == null)
+		{
+			throw new IllegalArgumentException("items cannot be null");
+		}
+		
+		final int itemsLength = items.stream().flatMapToInt(i -> IntStream.of(i.itemLength())).sum();
+		final int requiredNullCount = 4 - (itemsLength % 4);
+		return itemsLength + requiredNullCount;
 	}
 
 }

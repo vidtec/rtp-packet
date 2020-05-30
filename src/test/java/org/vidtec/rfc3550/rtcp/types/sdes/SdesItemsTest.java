@@ -99,6 +99,7 @@ public class SdesItemsTest
 		final byte[] data = { 0x00, 0x00, 0x00, 0x00 };
 		
 		assertEquals(SdesItems.toByteArray(new ArrayList<>()), data, "incorrect assembly");
+		assertEquals(SdesItems.byteLength(new ArrayList<>()), 4, "incorrect length calculation");
 	}
 
 	
@@ -107,6 +108,7 @@ public class SdesItemsTest
 		final byte[] data = { 0x01, 0x03, 0x30, 0x31, 0x32, 0x00, 0x00, 0x00 };
 
 		assertEquals(SdesItems.toByteArray( Arrays.asList(SdesItem.cname("012")) ), data, "incorrect assembly");
+		assertEquals(SdesItems.byteLength( Arrays.asList(SdesItem.cname("012")) ), 8, "incorrect length calculation");
 	}
 	
 	
@@ -115,6 +117,7 @@ public class SdesItemsTest
 		final byte[] data = { 0x01, 0x02, 0x30, 0x31, 0x00, 0x00, 0x00, 0x00 };
 		
 		assertEquals(SdesItems.toByteArray( Arrays.asList(SdesItem.cname("01")) ), data, "incorrect assembly");
+		assertEquals(SdesItems.byteLength( Arrays.asList(SdesItem.cname("01")) ), 8, "incorrect length calculation");
 	}
 	
 	
@@ -123,6 +126,7 @@ public class SdesItemsTest
 		final byte[] data = { 0x01, 0x03, 0x30, 0x31, 0x32, 0x02, 0x02, 0x30, 0x31, 0x00, 0x00, 0x00 };
 
 		assertEquals(SdesItems.toByteArray( Arrays.asList(SdesItem.cname("012"), SdesItem.name("01")) ), data, "incorrect assembly");
+		assertEquals(SdesItems.byteLength( Arrays.asList(SdesItem.cname("012"), SdesItem.name("01")) ), 12, "incorrect length calculation");
 	}
 	
 	
@@ -131,6 +135,15 @@ public class SdesItemsTest
 		try
 		{
 			SdesItems.toByteArray(null);
+			fail("should fail");
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "items cannot be null", "wrong validation message");
+		}
+		try
+		{
+			SdesItems.byteLength(null);
 			fail("should fail");
 		}
 		catch (IllegalArgumentException e)
