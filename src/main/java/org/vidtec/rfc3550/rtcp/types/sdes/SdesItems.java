@@ -34,7 +34,7 @@ final class SdesItems
 	 */
 	public static List<SdesItem> fromByteBuffer(final ByteBuffer bb)
 	{
-		final List<SdesItem> items = new ArrayList<>();
+		final List<SdesItem> items = new ArrayList<>(2);
 		int startPos = bb.position();
 
 		boolean shouldStop = false;

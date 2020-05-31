@@ -163,5 +163,35 @@ public class ChunkTest
 		}
 	}
 	
+	
+	public void testVisitorWorksOnItemsCorrectly()
+	{
+		Chunk c = Chunk.builder()
+			       .withSsrc(20)
+			       .withItems(SdesItem.cname("012"), SdesItem.name("01"))
+			       .withItems(SdesItem.phone("012"), SdesItem.email("01"))
+			       .withItems(SdesItem.location("012"), SdesItem.tool("01"))
+			       .withItems(SdesItem.note("012"), SdesItem.priv("01", "0123"))
+			       .build();
+		
+		assertTrue(!c.items().isEmpty(), "bad items list");
+		assertTrue(c.hasItems(), "bad items list");
+		assertEquals(c.items().size(), 8, "bad items list");
+
+		CountingVisitor v = new CountingVisitor();
+		c.visit(v);
+		
+		assertEquals(v.total, 8, "bad visitor");
+		assertEquals(v.cname, 1, "bad visitor");
+		assertEquals(v.name, 1, "bad visitor");
+		assertEquals(v.phone, 1, "bad visitor");
+		assertEquals(v.email, 1, "bad visitor");
+		assertEquals(v.loc, 1, "bad visitor");
+		assertEquals(v.note, 1, "bad visitor");
+		assertEquals(v.tool, 1, "bad visitor");
+		assertEquals(v.priv, 1, "bad visitor");
+		
+	}
+	
 }
 

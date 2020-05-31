@@ -117,6 +117,24 @@ public final class Chunk
 		return items.stream().filter(f -> f.itemType() == filter).collect(Collectors.toList());
 	}
 	
+	
+	/**
+	 * Visit all the items in this chunk with a visitor that performs some actions.
+	 * 
+	 * @param visitor A visitor instance to interrogate the packets.
+	 */
+	public void visit(final SdesItemsVisitor visitor)
+	{
+		items().stream().filter(f -> f.itemType() == ItemType.CNAME).forEach(i -> visitor.visitCname(i));
+		items().stream().filter(f -> f.itemType() == ItemType.NAME).forEach(i -> visitor.visitName(i));
+		items().stream().filter(f -> f.itemType() == ItemType.PHONE).forEach(i -> visitor.visitPhone(i));
+		items().stream().filter(f -> f.itemType() == ItemType.EMAIL).forEach(i -> visitor.visitEmail(i));
+		items().stream().filter(f -> f.itemType() == ItemType.LOC).forEach(i -> visitor.visitLoc(i));
+		items().stream().filter(f -> f.itemType() == ItemType.TOOL).forEach(i -> visitor.visitTool(i));
+		items().stream().filter(f -> f.itemType() == ItemType.NOTE).forEach(i -> visitor.visitNote(i));
+		items().stream().filter(f -> f.itemType() == ItemType.PRIV).forEach(i -> visitor.visitPriv(i));
+	}
+	
 
 	/**
 	 * Return the full length of the chunk in bytes.
