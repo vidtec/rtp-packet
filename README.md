@@ -36,11 +36,9 @@ General properties of RTPPacket:
    
 
 
-## Usage
+## Usage - RTP
 
-This section describes how to use the library.
-
-All packet creation and reading under goes complete validation. It is not possible to create an RTP packet that is not valid according to spec.
+All packet creation and reading undergoes complete validation. It is not possible to create an RTP packet that is not valid according to spec.
 
 ## Creating RDP Packets
 
@@ -50,13 +48,13 @@ In order to create a packet by hand, you can use the builder pattern to create a
 final RTPPacket p = RTPPacket.builder()
 					  .withMarker()
 		 			  .withRequiredHeaderFields(<packet_type, <seq_num>, <ssrc>, <timestamp>)	
-					  .withCsrcIdentifiers(... <csrcs ...)
+					  .withCsrcIdentifiers(... <csrcs> ...)
 					  .withHeaderExtension(<profile>, <extension_header>)
 					  .withPayload(<payload>)
 					  .build();
 ```
 
-**NB:** The ```build()``` method will throw an ```IllegalStateException``` if any of the data supplied would lead to creating of an invalid packet (according to RFC 3550).
+**NB:** The ```build()``` method will throw an ```IllegalArgumentException``` if any of the data supplied would lead to creating of an invalid packet (according to RFC 3550).
 
 
 
@@ -69,7 +67,7 @@ To create a new packet from a ```byte[]```
 final RTPPacket p = RTPPacket.fromByteArray(<byte_array>);
 ```
 
-**NB:** This method will throw an ```IllegalStateException``` if any of the data supplied would lead to creating of an invalid packet (according to RFC 3550).
+**NB:** This method will throw an ```IllegalArgumentException``` if any of the data supplied would lead to creating of an invalid packet (according to RFC 3550).
 
 
 To create a new packet from a ```DatagramPacket```
@@ -78,7 +76,7 @@ To create a new packet from a ```DatagramPacket```
 final RTPPacket p = RTPPacket.romDatagramPacket(<datagram_packet>);
 ```
 
-**NB:** This method will throw an ```IllegalStateException``` if any of the data supplied would lead to creating of an invalid packet (according to RFC 3550).
+**NB:** This method will throw an ```IllegalArgumentException``` if any of the data supplied would lead to creating of an invalid packet (according to RFC 3550).
 
 
 ## Writing RDP Packets
@@ -95,8 +93,64 @@ final RTPPacket p = RTPPacket.fromByteArray(<byte_array>);
 To create a new packet from a ```DatagramPacket```
 
 ```
-final RTPPacket p = RTPPacket.romDatagramPacket(<datagram_packet>);
+final RTPPacket p = RTPPacket.fromDatagramPacket(<datagram_packet>);
 ```
+
+## Usage - RTCP
+
+All packet creation and reading undergoes complete validation. It is not possible to create an RTCP packet that is not valid according to spec.
+
+## Compound Packets
+
+## Creating Compound Packets
+
+In order to create a packet by hand, you can use the builder pattern to create a packet.
+
+```
+final RTCPPackets p = RTCPPackets.builder()
+				.withPacket( ... <RTCPPackets> ... )								
+				.build();
+```
+
+## Reading Compound Packets
+
+
+To create a new packet from a ```byte[]```
+
+```
+final RTCPPackets p = RTCPPackets.fromByteArray(<byte_array>);
+```
+
+**NB:** This method will throw an ```IllegalArgumentException``` if any of the data supplied would lead to creating of an invalid packet (according to RFC 3550).
+
+
+To create a new packet from a ```DatagramPacket```
+
+```
+final RTCPPackets p = RTCPPackets.romDatagramPacket(<datagram_packet>);
+```
+
+**NB:** This method will throw an ```IllegalArgumentException``` if any of the data supplied would lead to creating of an invalid packet (according to RFC 3550).
+
+
+## Writing Compound Packets
+
+
+To create a new packet from a ```byte[]```
+
+```
+final RTCPPackets p = RTCPPackets.fromByteArray(<byte_array>);
+```
+
+
+To create a new packet from a ```DatagramPacket```
+
+```
+final RTCPPackets p = RTCPPackets.fromDatagramPacket(<datagram_packet>);
+```
+
+
+
 
 
 
