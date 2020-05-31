@@ -15,6 +15,7 @@ import org.vidtec.rfc3550.rtcp.types.app.AppRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.bye.ByeRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.report.ReceiverReportRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.report.SenderReportRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.sdes.SdesRTCPPacket;
 
 /**
  * A container for RTCP packets. This is the entry point for 
@@ -133,7 +134,7 @@ public final class RTCPPackets
 				}
 				case SDES:
 				{
-//					packets.add(SDESRTCPPacket.fromByteArray(bb));
+					packets.add(SdesRTCPPacket.fromByteArray(buffer));
 					break;
 				}
 				case APP:
@@ -209,7 +210,7 @@ public final class RTCPPackets
 				}
 				case SDES:
 				{
-//					visitor.visit((SdesRTCPPacket)p);
+					visitor.visit((SdesRTCPPacket)p);
 					break;
 				}
 				case APP:
@@ -227,7 +228,7 @@ public final class RTCPPackets
 	}
 	
 	
-// FIXME - refactor - use byte[][] and list - detaulf method takes mtu DEFAULT - can override	
+// FIXME - We need to handle packets bigger than a single MTU	
 	
 	
 	/**

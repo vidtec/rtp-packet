@@ -51,9 +51,7 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 	 */
 	private SdesRTCPPacket(final SdesBuilder builder)
 	{
-		super(PayloadType.SDES);
-		
-		this.chunks.addAll(builder.chunks == null ? Collections.emptyList() : builder.chunks);
+		this(builder.chunks);
 	}
 	
 	
@@ -164,12 +162,12 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 		final short firstByte = (short)(0xFF & bb.get());
 
 		// Get the chunk count
-//		final short chunkCount = (short)(0x1F & firstByte);
-//		if (bb.remaining() < MIN_HEAD_LENGTH - 1 + chunkCount * Chunk.BLOCK_SIZE)
-//		{
-//			// Amount of data left is less than number of report blocks
-//			throw new IllegalArgumentException("Packet states " + chunkCount + " chunks, so expecting length " + (MIN_HEAD_LENGTH + (chunkCount * Chunk.BLOCK_SIZE)) + ", but only found " + (bb.remaining() + 1) + " bytes.");
-//		}
+		final short chunkCount = (short)(0x1F & firstByte);
+		if (bb.remaining() < MIN_HEAD_LENGTH - 1 + chunkCount * 8)
+		{
+			// Amount of data left is less than number of report blocks
+			throw new IllegalArgumentException("Packet states " + chunkCount + " chunks, so expecting length of at least " + (MIN_HEAD_LENGTH + 8 * chunkCount) + ", but only found " + (bb.remaining() + 1) + " bytes.");
+		}
 		
 		// Ensure that there is no padding - should not be present on this packet !!
 		if ((0x20 & firstByte) == 0x20)
@@ -196,15 +194,12 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 			throw new IllegalArgumentException("Packet states " + length + " bytes length, but actual length is " + (bb.remaining() + 4));
 		}
 
-
-		// Get the blocks
-		final List<Chunk> chunks = new ArrayList<>();
-//		final byte[] buffer = new byte[Chunk.BLOCK_SIZE];
-//		for (int i = 0 ; i < chunkCount ; i++)
-//		{
-//			bb.get(buffer);
-//			chunks.add(Chunk.fromByteArray(buffer));
-//		}
+		// Get the chunks
+		final List<Chunk> chunks = new ArrayList<>(chunkCount);
+		while (bb.hasRemaining())
+		{
+			chunks.add(Chunk.fromByteBuffer(bb));
+		}
 		
 		return new SdesRTCPPacket(chunks);
 	}

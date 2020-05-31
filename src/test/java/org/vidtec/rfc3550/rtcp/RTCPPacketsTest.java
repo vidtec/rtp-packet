@@ -16,6 +16,7 @@ import org.vidtec.rfc3550.rtcp.types.app.AppRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.bye.ByeRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.report.ReceiverReportRTCPPacket;
 import org.vidtec.rfc3550.rtcp.types.report.SenderReportRTCPPacket;
+import org.vidtec.rfc3550.rtcp.types.sdes.SdesRTCPPacket;
 
 @Test
 public class RTCPPacketsTest 
@@ -161,8 +162,8 @@ public class RTCPPacketsTest
 		assertEquals(v.bye, 1, "visitor not correct");
 		
 		byte[] data3 = { (byte)0x80, (byte)0xC8, 0x00, 0x1C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-						 (byte)0x80, (byte)0xCC, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x20, 0x20, 0x20, 0x20 };
-		
+				 (byte)0x80, (byte)0xCC, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x20, 0x20, 0x20, 0x20 };
+
 		packets = RTCPPackets.fromByteArray( data3 );
 		
 		assertEquals(packets.lengthAsPacket(), 40, "incorrect sizing");
@@ -182,6 +183,30 @@ public class RTCPPacketsTest
 		assertEquals(v.rr, 0, "visitor not correct");
 		assertEquals(v.sdes, 0, "visitor not correct");
 		assertEquals(v.app, 1, "visitor not correct");
+		assertEquals(v.bye, 0, "visitor not correct");
+		
+		byte[] data4 = { (byte)0x80, (byte)0xC8, 0x00, 0x1C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				         (byte)0x80, (byte)0xCA, 0x00, 0x04 };
+		
+		packets = RTCPPackets.fromByteArray( data4 );
+		
+		assertEquals(packets.lengthAsPacket(), 32, "incorrect sizing");
+		assertEquals(packets.isCompund(), true, "incorrect sizing");
+		assertTrue(packets.packets() != null, "packets should be valid");
+		assertEquals(packets.packets().size(), 2, "container should be compound");
+		assertEquals(packets.packets().get(0).payloadType(), PayloadType.SR, "container have valid order");
+		assertEquals(packets.packets().get(1).payloadType(), PayloadType.SDES, "container have valid order");
+		
+		assertEquals(packets.asByteArray(), data4, "packet not reassembled correctly.");
+		
+		v = new CountingVisitor();
+		packets.visit(v);
+		
+		assertEquals(v.total, 2, "visitor not correct");
+		assertEquals(v.sr, 1, "visitor not correct");
+		assertEquals(v.rr, 0, "visitor not correct");
+		assertEquals(v.sdes, 1, "visitor not correct");
+		assertEquals(v.app, 0, "visitor not correct");
 		assertEquals(v.bye, 0, "visitor not correct");
 	}
 
@@ -276,28 +301,27 @@ public class RTCPPacketsTest
 		p = RTCPPackets.builder()
 				.withPackets( SenderReportRTCPPacket.builder().withSsrc(20).build(),
 					          ReceiverReportRTCPPacket.builder().withSsrc(20).build(), 
-
-					          // SDES builder
-					          
+					          SdesRTCPPacket.builder().build(),
 					          AppRTCPPacket.builder().withAppFields(0, "0000").withSsrc(20).build(),
 					          ByeRTCPPacket.builder().build() )
 				.build();
 			
-		assertEquals(p.packets().size(), 4, "incorrect packet size");
+		assertEquals(p.packets().size(), 5, "incorrect packet size");
 		assertEquals(p.packets().get(0).payloadType(), PayloadType.SR, "incorrect packet set");
 		assertEquals(p.packets().get(1).payloadType(), PayloadType.RR, "incorrect packet set");
-		assertEquals(p.packets().get(2).payloadType(), PayloadType.APP, "incorrect packet set");
-		assertEquals(p.packets().get(3).payloadType(), PayloadType.BYE, "incorrect packet set");
+		assertEquals(p.packets().get(2).payloadType(), PayloadType.SDES, "incorrect packet set");
+		assertEquals(p.packets().get(3).payloadType(), PayloadType.APP, "incorrect packet set");
+		assertEquals(p.packets().get(4).payloadType(), PayloadType.BYE, "incorrect packet set");
 		assertEquals(p.isCompund(), true, "incorrect packet container");
-		assertEquals(p.lengthAsPacket(), 52, "incorrect packet length");
+		assertEquals(p.lengthAsPacket(), 56, "incorrect packet length");
 
 		v = new CountingVisitor();
 		p.visit(v);
 
-		assertEquals(v.total, 4, "visitor not correct");
+		assertEquals(v.total, 5, "visitor not correct");
 		assertEquals(v.sr, 1, "visitor not correct");
 		assertEquals(v.rr, 1, "visitor not correct");
-		assertEquals(v.sdes, 0, "visitor not correct");
+		assertEquals(v.sdes, 1, "visitor not correct");
 		assertEquals(v.app, 1, "visitor not correct");
 		assertEquals(v.bye, 1, "visitor not correct");
 	}
