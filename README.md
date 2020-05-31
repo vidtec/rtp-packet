@@ -2,6 +2,14 @@
 
 A library for decoding/manipulation of RTP packets as per RFC 3550. 
 
+## Version History
+
+| Version  | Date  | CHanges
+|---------------|----------------|--------|
+| 2.0.0    |   May 2020   |  Added support for RTCP as per RFC 3550   |
+| 1.0.0    |   March 2020   |  Initial Release - RTP support as per RFC 3550  |
+
+
 ## Getting Started
 
 
