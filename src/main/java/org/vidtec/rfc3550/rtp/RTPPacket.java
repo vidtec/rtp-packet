@@ -57,9 +57,6 @@ public class RTPPacket implements Comparable<RTPPacket>
 	/** The flag indicating if this packet has an extension header. */
 	private final boolean hasExtension;
 
-	/** The number of contributing source records in this packet. */
-	private final short csrcCount;
-
 	/** The flag that indicates if this packet has a market set. */
 	private final boolean hasMarker;
 	
@@ -75,23 +72,14 @@ public class RTPPacket implements Comparable<RTPPacket>
 	/** The synchronisation source identifier (SSRC). */
 	private final long ssrcIdentifier;
 	
-	
 	/** The contributing source identifiers (CSRC)s. */
 	private final long[] csrcIdentifiers;
-	
 
 	/** The extension profile number (16-bit). */
 	private final int extensionProfile;
 	
-	/** The extension header length (16-bit). */
-	private final int extensionLength;
-	
 	/** The extension header data. */
 	private final byte[] extensionHeader;
-	
-
-	/** The payload length (EXCLUDING any padding data). */
-	private final short payloadLength;
 
 	/** The actual packet payload. */
 	private final byte[] payload;
@@ -140,11 +128,9 @@ public class RTPPacket implements Comparable<RTPPacket>
 				throw new IllegalArgumentException("Expected valid ccsrc identifiers count not " + builder.csrcIdentifiers.length);
 			}
 			csrcIdentifiers = builder.csrcIdentifiers;
-			csrcCount = (short)builder.csrcIdentifiers.length;
 		}
 		else
 		{
-			csrcCount = 0;
 			csrcIdentifiers = new long[0];
 		}
 		
@@ -166,7 +152,6 @@ public class RTPPacket implements Comparable<RTPPacket>
 			hasExtension = true;
 			extensionProfile = builder.extensionProfile;
 			extensionHeader = builder.extensionHeader;
-			extensionLength = builder.extensionHeader.length;
 		}
 		else
 		{
@@ -174,7 +159,6 @@ public class RTPPacket implements Comparable<RTPPacket>
 			hasExtension = false;
 			extensionProfile = -1;
 			extensionHeader = new byte[0];
-			extensionLength = -1;
 		}
 		
 		if (builder.payload == null || builder.payload.length == 0)
@@ -183,7 +167,6 @@ public class RTPPacket implements Comparable<RTPPacket>
 		}
 		
 		payload = builder.payload;
-		payloadLength = (short)builder.payload.length;
 		paddingBytes = builder.paddingBytes;
 	}
 	
@@ -227,8 +210,8 @@ public class RTPPacket implements Comparable<RTPPacket>
 		// Set the extension header if flag set.
 		hasExtension = ((firstByte & 0x10) == 0x10) ? true : false;
 		
-		// Set number of csrc 
-		csrcCount = (short)(firstByte & 0x0F);
+		// Get number of csrc 
+		short csrcCount = (short)(firstByte & 0x0F);
 		
 		
 		// Handle and unpack the 2nd byte.
@@ -272,7 +255,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 			
 			// handle header extension parts.
 			extensionProfile = 0xFFFF & bb.getShort();
-			extensionLength = 0xFFFF & bb.getShort();
+			int extensionLength = 0xFFFF & bb.getShort();
 			
 			if (bb.remaining() < extensionLength + 1)
 			{
@@ -287,13 +270,12 @@ public class RTPPacket implements Comparable<RTPPacket>
 		{
 			// no extension.
 			extensionProfile = -1;
-			extensionLength = -1;
 			extensionHeader = new byte[0];
 		}
 		
 		// handle payload length and payload
 		bb.limit(bb.capacity() - paddingBytes);
-		payloadLength = (short)bb.remaining();
+		short payloadLength = (short)bb.remaining();
 
 		payload = new byte[payloadLength];
 		bb.get(payload);
@@ -411,7 +393,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 */
 	public boolean hasCsrcs() 
 	{
-		return csrcCount > 0;
+		return csrcIdentifiers.length > 0;
 	}
 	
 
@@ -422,7 +404,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 */
 	public short csrcCount() 
 	{
-		return csrcCount;
+		return (short)csrcIdentifiers.length;
 	}
 	
 
@@ -488,7 +470,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 */
 	public long[] csrcIdentifiers()
 	{
-		return hasCsrcs() ? Arrays.copyOf(csrcIdentifiers, csrcCount) : new long[0];
+		return hasCsrcs() ? Arrays.copyOf(csrcIdentifiers, csrcIdentifiers.length) : new long[0];
 	}
 	
 	
@@ -510,7 +492,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 */
 	public int extensionLength()
 	{
-		return hasExtension() ? extensionLength : -1;
+		return hasExtension() ? extensionHeader.length : -1;
 	}
 	
 	
@@ -521,7 +503,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 */
 	public byte[] extensionHeaderAsByteArray()
 	{
-		return hasExtension() ? Arrays.copyOf(extensionHeader, extensionLength) : new byte[0];
+		return hasExtension() ? Arrays.copyOf(extensionHeader, extensionHeader.length) : new byte[0];
 	}
 
 	
@@ -534,7 +516,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 */
 	public int payloadLength() 
 	{
-		return payloadLength;
+		return payload.length;
 	}
 	
 	
@@ -546,7 +528,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 */
 	public int payloadLengthRaw() 
 	{
-		return payloadLength + paddingBytes;
+		return payload.length + paddingBytes;
 	}
 	
 	
@@ -559,7 +541,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 */
 	public ByteBuffer payloadAsByteBuffer() 
 	{
-		return ByteBuffer.wrap(Arrays.copyOf(payload, payloadLength));
+		return ByteBuffer.wrap(Arrays.copyOf(payload, payload.length));
 	}
 	
 	
@@ -572,7 +554,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 */
 	public byte[] payloadAsByteArray() 
 	{
-		return Arrays.copyOf(payload, payloadLength);
+		return Arrays.copyOf(payload, payload.length);
 	}
 	
 	
@@ -601,7 +583,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 */
 	public int packetLength()
 	{
-		return 12 + (4 * csrcCount()) + (hasExtension ? 4 + extensionLength : 0) + payloadLengthRaw();
+		return 12 + (4 * csrcCount()) + (hasExtension ? 4 + extensionHeader.length : 0) + payloadLengthRaw();
 	}
 	
 	
@@ -615,21 +597,18 @@ public class RTPPacket implements Comparable<RTPPacket>
 		final byte[] data = new byte[packetLength()];
 		final ByteBuffer bb = ByteBuffer.wrap(data);
 		
-		bb.put((byte)(VERSION << 6 | (isPadded() ? 0x20 : 0x00) | (hasExtension() ? 0x10 : 0x00) | csrcCount ));
+		bb.put((byte)(VERSION << 6 | (isPadded() ? 0x20 : 0x00) | (hasExtension() ? 0x10 : 0x00) | csrcCount() ));
 		bb.put((byte)(hasMarker() ? 0x80 | payloadType : 0x00 | payloadType));
 		bb.putShort((short)sequenceNumber);
 		bb.putInt((int)timestamp);
 		bb.putInt((int)ssrcIdentifier);
 		
-		for (int i = 0 ; i < csrcCount ; i++)
-		{
-			bb.putInt((int)csrcIdentifiers[i]);
-		}
+		Arrays.stream(csrcIdentifiers).forEach(c -> bb.putInt((int)c));
 
 		if (hasExtension())
 		{
 			bb.putShort((short)extensionProfile);
-			bb.putShort((short)extensionLength);
+			bb.putShort((short)(0xFFFF & extensionHeader.length));
 			bb.put(extensionHeader);
 		}
 		
