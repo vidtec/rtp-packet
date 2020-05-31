@@ -109,7 +109,6 @@ public final class ReportBlock
 	 * @throws IllegalArgumentException If there is a problem with the validity of the block.
 	 */
 	private ReportBlock(final byte[] data)
-	throws IllegalArgumentException
 	{
 		if (data == null)
 		{
@@ -268,7 +267,6 @@ public final class ReportBlock
 	 * @throws IllegalArgumentException If there is a problem with the validity of the block.
 	 */
 	public static ReportBlock fromByteArray(final byte[] data)
-	throws IllegalArgumentException
 	{
 		return new ReportBlock(data);
 	}
@@ -389,7 +387,6 @@ this.interarrivalJitter = 0;
 		 * @throws IllegalArgumentException If there is a problem with the supplied block data.
 		 */
 		public ReportBlock build() 
-		throws IllegalArgumentException
 		{
 			return new ReportBlock(this);
 		}

@@ -40,7 +40,6 @@ public final class RTCPPackets
 	 * @throws IllegalArgumentException If there is a problem with the validity of the data.
 	 */
 	private RTCPPackets(final Builder builder)
-	throws IllegalArgumentException
 	{
 		if (builder.packets.isEmpty())
 		{
@@ -70,7 +69,6 @@ public final class RTCPPackets
 	 * @throws IllegalArgumentException If there is a problem with the validity of the data.
 	 */
 	private RTCPPackets(final byte[] data)
-	throws IllegalArgumentException
 	{
 		if (data == null)
 		{
@@ -280,7 +278,6 @@ public final class RTCPPackets
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
 	public static RTCPPackets fromByteArray(final byte[] data)
-	throws IllegalArgumentException
 	{
 		return new RTCPPackets(data);
 	}
@@ -295,7 +292,6 @@ public final class RTCPPackets
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
 	public static RTCPPackets fromDatagramPacket(final DatagramPacket packet)
-	throws IllegalArgumentException
 	{
 		return fromByteArray(packet.getData());
 	}
@@ -385,7 +381,6 @@ public final class RTCPPackets
 		 * @throws IllegalArgumentException If there is a problem with the supplied packet data.
 		 */
 		public RTCPPackets build() 
-		throws IllegalArgumentException
 		{
 			return new RTCPPackets(this);
 		}

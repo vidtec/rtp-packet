@@ -54,7 +54,6 @@ public class AppRTCPPacket extends RTCPPacket<AppRTCPPacket>
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
 	private AppRTCPPacket(final AppBuilder builder)
-	throws IllegalArgumentException
 	{
 		super(PayloadType.APP);
 
@@ -182,7 +181,6 @@ public class AppRTCPPacket extends RTCPPacket<AppRTCPPacket>
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
 	public static AppRTCPPacket fromByteArray(final byte[] data)
-	throws IllegalArgumentException
 	{
 		if (data == null)
 		{
@@ -319,7 +317,6 @@ public class AppRTCPPacket extends RTCPPacket<AppRTCPPacket>
 		 * @throws IllegalArgumentException If there is a problem with the supplied packet data.
 		 */
 		public AppRTCPPacket build() 
-		throws IllegalArgumentException
 		{
 			return new AppRTCPPacket(this);
 		}

@@ -48,7 +48,6 @@ public class ByeRTCPPacket extends RTCPPacket<ByeRTCPPacket>
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
 	private ByeRTCPPacket(final ByeBuilder builder)
-	throws IllegalArgumentException
 	{
 		super(PayloadType.BYE);
 
@@ -188,7 +187,6 @@ public class ByeRTCPPacket extends RTCPPacket<ByeRTCPPacket>
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
 	public static ByeRTCPPacket fromByteArray(final byte[] data)
-	throws IllegalArgumentException
 	{
 		if (data == null)
 		{
@@ -323,7 +321,6 @@ public class ByeRTCPPacket extends RTCPPacket<ByeRTCPPacket>
 		 * @throws IllegalArgumentException If there is a problem with the supplied packet data.
 		 */
 		public ByeRTCPPacket build() 
-		throws IllegalArgumentException
 		{
 			return new ByeRTCPPacket(this);
 		}

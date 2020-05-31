@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import org.vidtec.rfc3550.rtcp.types.RTCPPacket;
-import org.vidtec.rfc3550.rtcp.types.report.ReportBlock;
 
 /**
  * An implementation of an RTCP sdes-related packet type according to RFC 3550 section 6.5.
@@ -39,7 +38,7 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 	
 
 	/** The report blocks in this packet. */
-	private final List<ReportBlock> chunks = new ArrayList<>();
+	private final List<Chunk> chunks = new ArrayList<>();
 
 	
 	/**
@@ -51,7 +50,6 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
 	private SdesRTCPPacket(final SdesBuilder builder)
-	throws IllegalArgumentException
 	{
 		super(PayloadType.SDES);
 		
@@ -66,8 +64,7 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
-	private SdesRTCPPacket(final List<ReportBlock> chunks)
-	throws IllegalArgumentException
+	private SdesRTCPPacket(final List<Chunk> chunks)
 	{
 		super(PayloadType.SDES);
 
@@ -107,7 +104,7 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 	 * 
 	 * @return The chunks.
 	 */
-	public List<ReportBlock> chunks()
+	public List<Chunk> chunks()
 	{
 		return Collections.unmodifiableList(chunks);
 	}	
@@ -119,7 +116,7 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 	@Override
 	public int packetLength() 
 	{
-		return MIN_HEAD_LENGTH + chunks().stream().flatMapToInt(block -> IntStream.of(block.length())).sum();
+		return MIN_HEAD_LENGTH + chunks().stream().flatMapToInt(chunk -> IntStream.of(chunk.chunkLength())).sum();
 	}
 
 	
@@ -150,7 +147,6 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
 	public static SdesRTCPPacket fromByteArray(final byte[] data)
-	throws IllegalArgumentException
 	{
 		if (data == null)
 		{
@@ -168,12 +164,12 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 		final short firstByte = (short)(0xFF & bb.get());
 
 		// Get the chunk count
-		final short chunkCount = (short)(0x1F & firstByte);
-		if (bb.remaining() < MIN_HEAD_LENGTH - 1 + chunkCount * ReportBlock.BLOCK_SIZE)
-		{
-			// Amount of data left is less than number of report blocks
-			throw new IllegalArgumentException("Packet states " + chunkCount + " chunks, so expecting length " + (MIN_HEAD_LENGTH + (chunkCount * ReportBlock.BLOCK_SIZE)) + ", but only found " + (bb.remaining() + 1) + " bytes.");
-		}
+//		final short chunkCount = (short)(0x1F & firstByte);
+//		if (bb.remaining() < MIN_HEAD_LENGTH - 1 + chunkCount * Chunk.BLOCK_SIZE)
+//		{
+//			// Amount of data left is less than number of report blocks
+//			throw new IllegalArgumentException("Packet states " + chunkCount + " chunks, so expecting length " + (MIN_HEAD_LENGTH + (chunkCount * Chunk.BLOCK_SIZE)) + ", but only found " + (bb.remaining() + 1) + " bytes.");
+//		}
 		
 		// Ensure that there is no padding - should not be present on this packet !!
 		if ((0x20 & firstByte) == 0x20)
@@ -189,7 +185,7 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 		catch (IllegalArgumentException e)
 		{
 			// Wrong payload type.
-			throw new IllegalArgumentException("Invalid or unexpected packet type - should be " + PayloadType.SDES.pt);
+			throw new IllegalArgumentException("Invalid or unexpected packet type - should be " + PayloadType.SDES.pt, e);
 		}
 		
 		// Get the length, and validate.
@@ -202,13 +198,13 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 
 
 		// Get the blocks
-		final List<ReportBlock> chunks = new ArrayList<>();
-		final byte[] buffer = new byte[ReportBlock.BLOCK_SIZE];
-		for (int i = 0 ; i < chunkCount ; i++)
-		{
-			bb.get(buffer);
-			chunks.add(ReportBlock.fromByteArray(buffer));
-		}
+		final List<Chunk> chunks = new ArrayList<>();
+//		final byte[] buffer = new byte[Chunk.BLOCK_SIZE];
+//		for (int i = 0 ; i < chunkCount ; i++)
+//		{
+//			bb.get(buffer);
+//			chunks.add(Chunk.fromByteArray(buffer));
+//		}
 		
 		return new SdesRTCPPacket(chunks);
 	}
@@ -230,7 +226,7 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 	 */
 	public static final class SdesBuilder 
 	{
-		private List<ReportBlock> chunks = new ArrayList<>();
+		private List<Chunk> chunks = new ArrayList<>();
 
 		
 		/**
@@ -245,7 +241,7 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 		 * @param chunks A variable args set of chunks.
 		 * @return The builder instance.
 		 */
-		public SdesBuilder withChunks(final ReportBlock ... chunks)
+		public SdesBuilder withChunks(final Chunk ... chunks)
 		{
 			if (chunks != null)
 			{
@@ -262,7 +258,7 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 		 * @param blocks A list of chunks.
 		 * @return The builder instance.
 		 */
-		public SdesBuilder withChunks(final List<ReportBlock> chunks)
+		public SdesBuilder withChunks(final List<Chunk> chunks)
 		{
 			if (chunks != null)
 			{
@@ -281,7 +277,6 @@ public class SdesRTCPPacket extends RTCPPacket<SdesRTCPPacket>
 		 * @throws IllegalArgumentException If there is a problem with the supplied packet data.
 		 */
 		public SdesRTCPPacket build() 
-		throws IllegalArgumentException
 		{
 			return new SdesRTCPPacket(this);
 		}

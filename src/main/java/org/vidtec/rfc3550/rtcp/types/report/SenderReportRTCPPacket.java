@@ -78,7 +78,6 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
 	private SenderReportRTCPPacket(final SenderReportBuilder builder)
-	throws IllegalArgumentException
 	{
 		super(PayloadType.SR, builder.ssrcIdentifier, builder.blocks);
 		
@@ -200,7 +199,6 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
 	public static SenderReportRTCPPacket fromByteArray(final byte[] data)
-	throws IllegalArgumentException
 	{
 		if (data == null)
 		{
@@ -390,7 +388,6 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 		 * @throws IllegalArgumentException If there is a problem with the supplied packet data.
 		 */
 		public SenderReportRTCPPacket build() 
-		throws IllegalArgumentException
 		{
 			return new SenderReportRTCPPacket(this);
 		}

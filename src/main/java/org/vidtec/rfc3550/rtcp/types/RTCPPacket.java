@@ -114,7 +114,6 @@ public abstract class RTCPPacket<T>
 	 * @throws IllegalArgumentException If the there is a problem extracting the payload type or it is invalid.
 	 */
 	public static PayloadType peekPayloadType(final ByteBuffer buffer)
-	throws IllegalArgumentException
 	{
 		buffer.mark();
 		try
@@ -149,7 +148,6 @@ public abstract class RTCPPacket<T>
 	 * @throws IllegalArgumentException If the there is a problem extracting the payload length or it is invalid.
 	 */
 	public static int peekStatedLength(final ByteBuffer buffer)
-	throws IllegalArgumentException
 	{
 		buffer.mark();
 		try

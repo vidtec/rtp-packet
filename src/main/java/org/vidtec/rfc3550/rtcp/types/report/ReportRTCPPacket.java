@@ -30,7 +30,6 @@ public abstract class ReportRTCPPacket<T> extends RTCPPacket<T>
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
 	protected ReportRTCPPacket(final PayloadType type, final long ssrcIdentifier, final List<ReportBlock> blocks)
-	throws IllegalArgumentException
 	{
 		super(type);
 

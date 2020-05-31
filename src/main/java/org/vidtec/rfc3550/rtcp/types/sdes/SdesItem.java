@@ -211,7 +211,6 @@ public final class SdesItem
 	 * @throws IllegalArgumentException If there is a problem with the validity of the item.
 	 */
 	public static SdesItem fromByteArray(final byte[] data)
-	throws IllegalArgumentException
 	{	
 		if (data == null)
 		{
@@ -231,7 +230,6 @@ public final class SdesItem
 	 * @throws IllegalArgumentException If there is a problem with the validity of the item.
 	 */
 	public static SdesItem fromByteBuffer(final ByteBuffer bb)
-	throws IllegalArgumentException
 	{	
 		if (bb == null)
 		{
@@ -298,7 +296,6 @@ public final class SdesItem
 	 * @throws IllegalArgumentException If the there is a problem extracting the item type or it is invalid.
 	 */
 	public static ItemType peekItemType(final ByteBuffer buffer)
-	throws IllegalArgumentException
 	{
 		buffer.mark();
 		try
@@ -333,7 +330,6 @@ public final class SdesItem
 	 * @throws IllegalArgumentException If the there is a problem extracting the item length or it is invalid.
 	 */
 	public static int peekStatedLength(final ByteBuffer buffer)
-	throws IllegalArgumentException
 	{
 		buffer.mark();
 		try
@@ -427,7 +423,6 @@ public final class SdesItem
 	 * @throws IllegalArgumentException If there is a problem with the supplied item data.
 	 */
 	public static SdesItem cname(final String value)
-	throws IllegalArgumentException
 	{
 		return new SdesItem(ItemType.CNAME, value);
 	}
@@ -442,7 +437,6 @@ public final class SdesItem
 	 * @throws IllegalArgumentException If there is a problem with the supplied item data.
 	 */
 	public static SdesItem name(final String value)
-	throws IllegalArgumentException
 	{
 		return new SdesItem(ItemType.NAME, value);
 	}
@@ -457,7 +451,6 @@ public final class SdesItem
 	 * @throws IllegalArgumentException If there is a problem with the supplied item data.
 	 */
 	public static SdesItem email(final String value)
-	throws IllegalArgumentException
 	{
 		return new SdesItem(ItemType.EMAIL, value);
 	}
@@ -472,7 +465,6 @@ public final class SdesItem
 	 * @throws IllegalArgumentException If there is a problem with the supplied item data.
 	 */
 	public static SdesItem phone(final String value)
-	throws IllegalArgumentException
 	{
 		return new SdesItem(ItemType.PHONE, value);
 	}
@@ -487,7 +479,6 @@ public final class SdesItem
 	 * @throws IllegalArgumentException If there is a problem with the supplied item data.
 	 */
 	public static SdesItem location(final String value)
-	throws IllegalArgumentException
 	{
 		return new SdesItem(ItemType.LOC, value);
 	}
@@ -502,7 +493,6 @@ public final class SdesItem
 	 * @throws IllegalArgumentException If there is a problem with the supplied item data.
 	 */
 	public static SdesItem tool(final String value)
-	throws IllegalArgumentException
 	{
 		return new SdesItem(ItemType.TOOL, value);
 	}
@@ -517,7 +507,6 @@ public final class SdesItem
 	 * @throws IllegalArgumentException If there is a problem with the supplied item data.
 	 */
 	public static SdesItem note(final String value)
-	throws IllegalArgumentException
 	{
 		return new SdesItem(ItemType.NOTE, value);
 	}
@@ -533,7 +522,6 @@ public final class SdesItem
 	 * @throws IllegalArgumentException If there is a problem with the supplied item data.
 	 */
 	public static SdesItem priv(final String value, final String prefix)
-	throws IllegalArgumentException
 	{
 		return new SdesItem(ItemType.PRIV, value, prefix);
 	}

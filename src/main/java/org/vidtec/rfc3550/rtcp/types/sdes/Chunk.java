@@ -49,7 +49,6 @@ public final class Chunk
 	 * @throws IllegalArgumentException If there is an issue validating the builder data.
 	 */
 	private Chunk(final Builder builder) 
-	throws IllegalArgumentException
 	{
 		if (builder.ssrcIdentifier > 0xFFFFFFFFL || builder.ssrcIdentifier < 0)
 		{
@@ -157,7 +156,6 @@ public final class Chunk
 	 * @throws IllegalArgumentException If there is a problem with the validity of the chunk.
 	 */
 	public static Chunk fromByteArray(final byte[] data)
-	throws IllegalArgumentException
 	{	
 		if (data == null)
 		{
@@ -177,7 +175,6 @@ public final class Chunk
 	 * @throws IllegalArgumentException If there is a problem with the validity of the chunk.
 	 */
 	public static Chunk fromByteBuffer(final ByteBuffer bb)
-	throws IllegalArgumentException
 	{	
 		if (bb == null)
 		{
@@ -259,7 +256,6 @@ public final class Chunk
 		 * @throws IllegalArgumentException If there is a problem with the supplied chunk data.
 		 */
 		public Chunk build() 
-		throws IllegalArgumentException
 		{
 			return new Chunk(this);
 		}

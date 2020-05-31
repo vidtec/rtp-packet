@@ -33,7 +33,6 @@ final class SdesItems
 	 * @throws IllegalArgumentException If there is a problem extracting the items from the buffer.
 	 */
 	public static List<SdesItem> fromByteBuffer(final ByteBuffer bb)
-	throws IllegalArgumentException
 	{
 		final List<SdesItem> items = new ArrayList<>();
 		int startPos = bb.position();
@@ -86,7 +85,6 @@ final class SdesItems
 	 * @throws IllegalArgumentException If there is a problem extracting the items from the buffer.
 	 */
 	public static byte[] toByteArray(final List<SdesItem> items)
-	throws IllegalArgumentException
 	{
 		if (items == null)
 		{
@@ -114,7 +112,6 @@ final class SdesItems
 	 * @throws IllegalArgumentException If the items list is null.
 	 */
 	public static int byteLength(final Collection<SdesItem> items)
-	throws IllegalArgumentException
 	{
 		if (items == null)
 		{
