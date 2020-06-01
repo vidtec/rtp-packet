@@ -25,6 +25,11 @@
         </developer>
     </developers>
     
+    <scm>
+        <connection>scm:git:git://github.com/vidtec/rtp-packet.git</connection>
+        <url>http://github.com/vidtec/rtp-packet/tree/master</url>
+    </scm>
+        
 	<properties>
 		<maven.compiler.release>11</maven.compiler.release>
 	    <maven.minimum.required.version>3.3.9</maven.minimum.required.version>

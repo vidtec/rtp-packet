@@ -19,9 +19,9 @@ In order to use this library, simply include the maven dependancy as shown below
 
 ```
 <dependency>
-    <groupId>org.vidtech</groupId>
+    <groupId>org.vidtec</groupId>
     <artifactId>rtp-packet</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
