@@ -10,63 +10,128 @@
 
 	<properties>
 		<maven.compiler.release>11</maven.compiler.release>
+	    <maven.minimum.required.version>3.3.9</maven.minimum.required.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<plugin.version.for.maven-compiler-plugin>3.8.1</plugin.version.for.maven-compiler-plugin>
+		<plugin.version.for.maven-javadoc-plugin>3.2.0</plugin.version.for.maven-javadoc-plugin>
+		<plugin.version.for.maven-source-plugin>3.2.1</plugin.version.for.maven-source-plugin>
+		<plugin.version.for.maven-dependency-plugin>3.1.2</plugin.version.for.maven-dependency-plugin>
+		<plugin.version.for.maven-clean-plugin>3.1.0</plugin.version.for.maven-clean-plugin>
+		<plugin.version.for.maven-deploy-plugin>3.0.0-M1</plugin.version.for.maven-deploy-plugin>
+		<plugin.version.for.maven-install-plugin>3.0.0-M1</plugin.version.for.maven-install-plugin>
+		<plugin.version.for.maven-jar-plugin>3.2.0</plugin.version.for.maven-jar-plugin>
+		<plugin.version.for.maven-resources-plugin>3.1.0</plugin.version.for.maven-resources-plugin>
+		<plugin.version.for.maven-site-plugin>3.9.0</plugin.version.for.maven-site-plugin>
+		<plugin.version.for.maven-surefire-plugin>3.0.0-M4</plugin.version.for.maven-surefire-plugin>
+		<plugin.version.for.maven-enforcer-plugin>3.0.0-M3</plugin.version.for.maven-enforcer-plugin>
+		<plugin.version.for.maven-project-info-reports-plugin>3.1.0</plugin.version.for.maven-project-info-reports-plugin>
+		
+		<plugin.version.for.spotbugs-maven-plugin>4.0.0</plugin.version.for.spotbugs-maven-plugin>
+		<plugin.version.for.jacoco-maven-plugin>0.8.5</plugin.version.for.jacoco-maven-plugin>
+
+		<spotbugs.plugin.version.for.fb-contrib>7.4.7</spotbugs.plugin.version.for.fb-contrib>
+		<spotbugs.plugin.version.for.findsecbugs-plugin>1.10.1</spotbugs.plugin.version.for.findsecbugs-plugin>
+
+		<dependency.version.for.testng>7.1.0</dependency.version.for.testng>
+		<dependency.version.for.spotbugs>4.0.3</dependency.version.for.spotbugs>
 	</properties>
 
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.testng/testng -->
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
-			<version>7.1.0</version>
+			<version>${dependency.version.for.testng}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
+	<!--  Tasks to run outside of build:               -->
+	<!--      mvn versions:display-property-updates    -->
+	<!--      mvn versions:display-plugin-updates      -->
+	<!--      mvn dependency:analyze                   -->
 
 	<build>
 		<pluginManagement>
 			<plugins>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.1</version>
-					<configuration>
-					</configuration>
+					<artifactId>maven-project-info-reports-plugin</artifactId>
+					<version>${plugin.version.for.maven-project-info-reports-plugin}</version>
 				</plugin>
-
+				
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>${plugin.version.for.maven-clean-plugin}</version>
+				</plugin>
+				
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${plugin.version.for.maven-compiler-plugin}</version>
+				</plugin>
+				
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>${plugin.version.for.maven-deploy-plugin}</version>
+				</plugin>
+				
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>${plugin.version.for.maven-install-plugin}</version>
+				</plugin>
+				
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>${plugin.version.for.maven-jar-plugin}</version>
+				</plugin>	
+							
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>${plugin.version.for.maven-resources-plugin}</version>
+				</plugin>
+				
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>${plugin.version.for.maven-site-plugin}</version>
+				</plugin>	
+							
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${plugin.version.for.maven-surefire-plugin}</version>
+				</plugin>
+				
 				<plugin>
 					<groupId>com.github.spotbugs</groupId>
 					<artifactId>spotbugs-maven-plugin</artifactId>
-					<version>4.0.0</version>
+					<version>${plugin.version.for.spotbugs-maven-plugin}</version>
 					<dependencies>
 						<dependency>
 							<groupId>com.github.spotbugs</groupId>
 							<artifactId>spotbugs</artifactId>
-							<version>4.0.2</version>
+							<version>${dependency.version.for.spotbugs}</version>
 						</dependency>
 					</dependencies>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-
-		<plugins>
-			<plugin>
-				<groupId>com.github.spotbugs</groupId>
-				<artifactId>spotbugs-maven-plugin</artifactId>
-				<configuration>
+					<configuration>
 					<excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
 					<effort>Max</effort>
 					<plugins>
 						<plugin>
 							<groupId>com.h3xstream.findsecbugs</groupId>
 							<artifactId>findsecbugs-plugin</artifactId>
-							<version>1.10.1</version>
+							<version>${spotbugs.plugin.version.for.findsecbugs-plugin}</version>
 						</plugin>
 						<plugin>
 							<groupId>com.mebigfatguy.sb-contrib</groupId>
 							<artifactId>sb-contrib</artifactId>
-							<version>7.4.7</version>
+							<version>${spotbugs.plugin.version.for.fb-contrib}</version>
 						</plugin>
 					</plugins>
 				</configuration>
@@ -77,61 +142,114 @@
 						</goals>
 					</execution>
 				</executions>
+				</plugin>
+				
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${plugin.version.for.jacoco-maven-plugin}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>prepare-agent</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>report</id>
+							<phase>prepare-package</phase>
+							<goals>
+								<goal>report</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>${plugin.version.for.maven-javadoc-plugin}</version>
+					<configuration>
+						<show>public</show>
+						<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+					</configuration>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>		
+				
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>${plugin.version.for.maven-source-plugin}</version>
+					<configuration>
+						<encoding>UTF-8</encoding>
+					</configuration>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>				
+						
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-enforcer-plugin</artifactId>
+					<version>${plugin.version.for.maven-enforcer-plugin}</version>
+					<executions>
+						<execution>
+							<id>enforce-versions</id>
+							<goals>
+								<goal>enforce</goal>
+							</goals>
+							<configuration>
+								<rules>
+									<requireMavenVersion>
+										<version>${maven.minimum.required.version}</version>
+									</requireMavenVersion>
+									<requireJavaVersion>
+										<version>${maven.compiler.release}</version>
+									</requireJavaVersion>
+								</rules>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				
+			</plugins>
+		</pluginManagement>
+
+		<plugins>
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
 			</plugin>
 
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.5</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>report</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.2.0</version>
-				<configuration>
-					<show>public</show>
-					<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
-				</configuration>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.2.1</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
-				</configuration>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
+			</plugin>
+		
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
 			</plugin>
 
 		</plugins>
@@ -142,8 +260,9 @@
 			<plugin>
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>
-				<version>4.0.0</version>
+				<version>${plugin.version.for.spotbugs-maven-plugin}</version>
 			</plugin>
+			
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -155,13 +274,28 @@
 					</reportSet>
 				</reportSets>
 			</plugin>
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.2.0</version>
+				<version>${plugin.version.for.maven-javadoc-plugin}</version>
 				<configuration>
 					<show>public</show>
+					<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
 				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>${plugin.version.for.maven-dependency-plugin}</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>analyze-report</report>
+						</reports>
+					</reportSet>
+				</reportSets>
 			</plugin>
 		</plugins>
 	</reporting>
