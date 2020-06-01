@@ -93,7 +93,7 @@ To create a new packet from a ```DatagramPacket```
 
 ```
 
-final RTPPacket p = RTPPacket.romDatagramPacket(<datagram_packet>);
+final RTPPacket p = RTPPacket.fromDatagramPacket(<datagram_packet>);
 
 ```
 
@@ -163,7 +163,7 @@ To create a new packet from a ```DatagramPacket```
 
 ```
 
-final RTCPPackets p = RTCPPackets.romDatagramPacket(<datagram_packet>);
+final RTCPPackets p = RTCPPackets.fromDatagramPacket(<datagram_packet>);
 
 ```
 
