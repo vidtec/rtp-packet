@@ -110,6 +110,7 @@ public class ReceiverReportRTCPPacket extends ReportRTCPPacket<ReceiverReportRTC
 	 * Returns an RTCP packet derived from a given byte array.
 	 * 
 	 * @param data The byte[] to construct a packet from.
+	 * @return The packet instance.
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */

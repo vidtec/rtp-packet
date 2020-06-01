@@ -627,8 +627,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 * 
 	 * @param address The InetAddress that the datagram will be sent to.
 	 * @param port The port that the datagram will be sent to.
-	 * 
-	 * @return A DatagramPacket that is ready to send.
+	 * @return The DatagramPacket instance that represents this packet.
 	 */
 	public DatagramPacket asDatagramPacket(InetAddress address, int port) 
 	{
@@ -640,6 +639,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 * Returns an RTP packet derived from a given byte array.
 	 * 
 	 * @param data The byte[] to construct a packet from.
+	 * @return The RTPPacket instance.
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
@@ -653,6 +653,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 * Returns an RTP packet derived from a given DatagramPacket.
 	 * 
 	 * @param packet DatagramPacket construct a packet from.
+	 * @return The RTPPacket instance.
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */

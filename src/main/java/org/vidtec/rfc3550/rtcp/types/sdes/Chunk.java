@@ -187,7 +187,7 @@ public final class Chunk
 	/**
 	 * Returns a Chunk derived from a given bytebuffer.
 	 * 
-	 * @param data The bytebuffer to construct a chunk from.
+	 * @param bb The bytebuffer to construct a chunk from.
 	 * @return The generated chunk.
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the chunk.
@@ -256,7 +256,7 @@ public final class Chunk
 		/**
 		 * This chunk needs SDES items.
 		 * 
-		 * @param itesm The The items to include in the chunk.
+		 * @param items The The items to include in the chunk.
 		 * @return The builder instance.
 		 */
 		public Builder withItems(final SdesItem ... items)

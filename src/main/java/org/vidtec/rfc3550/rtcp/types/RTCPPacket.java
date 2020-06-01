@@ -9,6 +9,8 @@ import java.util.Map;
  * An implementation of an RTCP packet according to RFC 3550/.
  * https://tools.ietf.org/html/rfc3550
  * 
+ * @param <T> The packet concrete type.
+ * 
  * TODO: support extensions as per RFC 3611
  */
 public abstract class RTCPPacket<T> 
@@ -91,7 +93,7 @@ public abstract class RTCPPacket<T>
 	/**
 	 * Helper method to return the packet object as it's real class type (prevents casting in client code).
 	 * 
-	 * @return The concrete packet type <T>.
+	 * @return The concrete packet type T.
 	 */
 	@SuppressWarnings("unchecked")
 	public T asConcreteType()

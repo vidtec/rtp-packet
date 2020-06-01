@@ -177,6 +177,7 @@ public class AppRTCPPacket extends RTCPPacket<AppRTCPPacket>
 	 * Returns an RTCP packet derived from a given byte array.
 	 * 
 	 * @param data The byte[] to construct a packet from.
+	 * @return The instance representing the given data.
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
@@ -286,7 +287,7 @@ public class AppRTCPPacket extends RTCPPacket<AppRTCPPacket>
 		/**
 		 * This packet should have a ssrc identifier.
 		 * 
-		 * @param ssrcs The ssrc identifier.
+		 * @param ssrc The ssrc identifier.
 		 * @return The builder instance.
 		 */
 		public AppBuilder withSsrc(final long ssrc)

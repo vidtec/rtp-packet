@@ -256,7 +256,6 @@ public final class RTCPPackets
 	 * 
 	 * @param address The InetAddress that the datagram will be sent to.
 	 * @param port The port that the datagram will be sent to.
-	 * 
 	 * @return A DatagramPacket that is ready to send.
 	 */
 	public DatagramPacket asDatagramPacket(InetAddress address, int port) 
@@ -274,7 +273,8 @@ public final class RTCPPackets
 	 *             it does not handle re-assembly from multiple protocol layer (UDP)
 	 *             frames.    
 	 *             	 * 
-	 * @param packet DatagramPacket construct a RTCP packet(s) from.
+	 * @param data DatagramPacket construct a RTCP packet(s) from.
+	 * @return The RTCPPackets instance representing the given data.
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
@@ -289,6 +289,7 @@ public final class RTCPPackets
 	 * NB: A payload may be one to more RTTCP packets (compound), so a container is returned.
 	 * 
 	 * @param packet DatagramPacket construct a RTCP packet(s) from.
+	 * @return The RTCPPackets instance representing the given data.
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
@@ -324,9 +325,9 @@ public final class RTCPPackets
 
 
 		/**
-		 * This container should have packets.
+		 * This container should have a packet.
 		 * 
-		 * @param packets A list of packets.
+		 * @param packet A packet.
 		 * @return The builder instance.
 		 */
 		public Builder withPacket(final RTCPPacket<?> packet)

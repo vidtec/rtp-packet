@@ -224,7 +224,7 @@ public final class SdesItem
 	/**
 	 * Returns a SdesItem derived from a given bytebuffer.
 	 * 
-	 * @param data The bytebuffer to construct an item from.
+	 * @param bb The bytebuffer to construct an item from.
 	 * @return The generated item.
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the item.
