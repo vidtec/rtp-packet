@@ -42,13 +42,20 @@ General properties of RTPPacket:
  - Automatic handling of padding
  - Automatic handling of header extensions
    
+General properties of RTCPPacket:
 
+ - All packet objects are fully validated against RFC 3550 during instantiation
+ - All packet objects are immutable
+ - Getter methods to extract data points
+ - Automatic handling of padding
+ - Automatic handling of compound packets
+   
 
 ## Usage - RTP
 
 All packet creation and reading undergoes complete validation. It is not possible to create an RTP packet that is not valid according to spec.
 
-## Creating RDP Packets
+## Creating RTP Packets
 
 In order to create a packet by hand, you can use the builder pattern to create a packet.
 
@@ -68,7 +75,7 @@ final RTPPacket p = RTPPacket.builder()
 
 
 
-## Reading RDP Packets
+## Reading RTP Packets
 
 
 To create a new packet from a ```byte[]```
@@ -93,7 +100,7 @@ final RTPPacket p = RTPPacket.romDatagramPacket(<datagram_packet>);
 **NB:** This method will throw an ```IllegalArgumentException``` if any of the data supplied would lead to creating of an invalid packet (according to RFC 3550).
 
 
-## Writing RDP Packets
+## Writing RTP Packets
 
 
 
