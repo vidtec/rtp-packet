@@ -175,19 +175,12 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 * Create an RTP packet from a given byte array.
 	 * NB: This constructor will validate the packet data is valid as per RFC 3550.
 	 * 
-	 * @param data The byte[] to construct a packet from.
+	 * @param bb The ByteBuffer to construct a packet from.
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the packet.
 	 */
-	private RTPPacket(final byte[] data)
+	private RTPPacket(final ByteBuffer bb)
 	{
-		if (data == null)
-		{
-			throw new IllegalArgumentException("packet data cannot be null");
-		}
-		
-		final ByteBuffer bb = ByteBuffer.wrap(data);
-
 		if (bb.remaining() < 13)
 		{
 			// As per RFC 3550 - the header is 12 bytes, there must be data - anything less is a bad packet.
@@ -274,7 +267,7 @@ public class RTPPacket implements Comparable<RTPPacket>
 		}
 		
 		// handle payload length and payload
-		bb.limit(bb.capacity() - paddingBytes);
+		bb.limit(bb.limit() - paddingBytes);
 		short payloadLength = (short)bb.remaining();
 
 		payload = new byte[payloadLength];
@@ -645,7 +638,12 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 */
 	public static RTPPacket fromByteArray(final byte[] data)
 	{
-		return new RTPPacket(data);
+		if (data == null)
+		{
+			throw new IllegalArgumentException("packet data cannot be null");
+		}
+		
+		return new RTPPacket( ByteBuffer.wrap(data) );
 	}
 
 
@@ -659,7 +657,12 @@ public class RTPPacket implements Comparable<RTPPacket>
 	 */
 	public static RTPPacket fromDatagramPacket(final DatagramPacket packet)
 	{
-		return fromByteArray(packet.getData());
+		if (packet == null)
+		{
+			throw new IllegalArgumentException("packet cannot be null");
+		}
+		
+		return new RTPPacket( ByteBuffer.wrap(packet.getData(), 0, packet.getLength()) );
 	}
 	
 

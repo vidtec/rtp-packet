@@ -2,6 +2,7 @@ package org.vidtec.rfc3550.rtcp;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -33,7 +34,19 @@ public class RTCPPacketsTest
 		{
 			assertEquals(e.getMessage(), "packet data cannot be null", "wrong validation message");
 		}
-				try
+		
+		// Tests that [RTP-PACKET-1] https://github.com/vidtec/rtp-packet/issues/1 is resolved.
+		try
+		{
+			RTCPPackets.fromDatagramPacket( null );
+			fail("Expected error");
+		}
+		catch(IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "packet cannot be null", "wrong validation message");
+		}
+		
+		try
 		{
 			// too short
 			byte[] data = { (byte)0x80 };
@@ -427,6 +440,43 @@ public class RTCPPacketsTest
 		assertEquals(packets.packets().get(1).payloadType(), PayloadType.RR, "container have valid order");
 		
 		assertEquals(packets.asByteArray(), data, "packet not reassembled correctly.");
+
+		CountingVisitor v = new CountingVisitor();
+		packets.visit(v);
+
+		assertEquals(v.total, 2, "visitor not correct");
+		assertEquals(v.sr, 0, "visitor not correct");
+		assertEquals(v.rr, 2, "visitor not correct");
+		assertEquals(v.sdes, 0, "visitor not correct");
+		assertEquals(v.app, 0, "visitor not correct");
+		assertEquals(v.bye, 0, "visitor not correct");
+	}
+	
+	
+	
+	public void testCanBuildRTCPPacketsFromDatagramPacketWhereSourceBufferIsOversizedComparedToReadDataCorrectly()
+	{
+		// Tests that [RTP-PACKET-1] https://github.com/vidtec/rtp-packet/issues/1 is resolved.
+
+		byte[] data = { (byte)0x80, (byte)0xC9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00,
+				        (byte)0x80, (byte)0xC9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00,
+				        0x08, 0x00, 0x00, 0x00, 0x00 };
+
+		byte[] mindata = { (byte)0x80, (byte)0xC9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00,
+						   (byte)0x80, (byte)0xC9, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00 };
+
+		// Simulate the reading of a packet - 'read' 16 bytes, but buffer is bigger.
+		DatagramPacket dp = new DatagramPacket(data, 16);
+		RTCPPackets packets = RTCPPackets.fromDatagramPacket( dp );
+		
+		assertEquals(packets.lengthAsPacket(), 16, "incorrect sizing");
+		assertEquals(packets.isCompund(), true, "incorrect sizing");
+		assertTrue(packets.packets() != null, "packets should be valid");
+		assertEquals(packets.packets().size(), 2, "container should be compound");
+		assertEquals(packets.packets().get(0).payloadType(), PayloadType.RR, "container have valid order");
+		assertEquals(packets.packets().get(1).payloadType(), PayloadType.RR, "container have valid order");
+		
+		assertEquals(packets.asByteArray(), mindata, "packet not reassembled correctly.");
 
 		CountingVisitor v = new CountingVisitor();
 		packets.visit(v);
