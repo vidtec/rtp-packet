@@ -53,6 +53,7 @@ All packet creation and reading undergoes complete validation. It is not possibl
 In order to create a packet by hand, you can use the builder pattern to create a packet.
 
 ```
+
 final RTPPacket p = RTPPacket.builder()
 					  .withMarker()
 		 			  .withRequiredHeaderFields(<packet_type, <seq_num>, <ssrc>, <timestamp>)	
@@ -60,6 +61,7 @@ final RTPPacket p = RTPPacket.builder()
 					  .withHeaderExtension(<profile>, <extension_header>)
 					  .withPayload(<payload>)
 					  .build();
+					  
 ```
 
 **NB:** The ```build()``` method will throw an ```IllegalArgumentException``` if any of the data supplied would lead to creating of an invalid packet (according to RFC 3550).
@@ -72,7 +74,9 @@ final RTPPacket p = RTPPacket.builder()
 To create a new packet from a ```byte[]```
 
 ```
+
 final RTPPacket p = RTPPacket.fromByteArray(<byte_array>);
+
 ```
 
 **NB:** This method will throw an ```IllegalArgumentException``` if any of the data supplied would lead to creating of an invalid packet (according to RFC 3550).
@@ -81,7 +85,9 @@ final RTPPacket p = RTPPacket.fromByteArray(<byte_array>);
 To create a new packet from a ```DatagramPacket```
 
 ```
+
 final RTPPacket p = RTPPacket.romDatagramPacket(<datagram_packet>);
+
 ```
 
 **NB:** This method will throw an ```IllegalArgumentException``` if any of the data supplied would lead to creating of an invalid packet (according to RFC 3550).
@@ -94,14 +100,18 @@ final RTPPacket p = RTPPacket.romDatagramPacket(<datagram_packet>);
 To create a new packet from a ```byte[]```
 
 ```
+
 final RTPPacket p = RTPPacket.fromByteArray(<byte_array>);
+
 ```
 
 
 To create a new packet from a ```DatagramPacket```
 
 ```
+
 final RTPPacket p = RTPPacket.fromDatagramPacket(<datagram_packet>);
+
 ```
 
 ## Usage - RTCP
@@ -115,9 +125,17 @@ All packet creation and reading undergoes complete validation. It is not possibl
 In order to create a packet by hand, you can use the builder pattern to create a packet.
 
 ```
+
 final RTCPPackets p = RTCPPackets.builder()
 				.withPacket( ... <RTCPPackets> ... )								
 				.build();
+				
+```
+or the shorthand version
+```
+
+final RTCPPackets p = RTCPPackets.buildWithPackets( ... <RTCPPackets> ... );
+
 ```
 
 ## Reading Compound Packets
@@ -126,7 +144,9 @@ final RTCPPackets p = RTCPPackets.builder()
 To create a new packet from a ```byte[]```
 
 ```
+
 final RTCPPackets p = RTCPPackets.fromByteArray(<byte_array>);
+
 ```
 
 **NB:** This method will throw an ```IllegalArgumentException``` if any of the data supplied would lead to creating of an invalid packet (according to RFC 3550).
@@ -135,7 +155,9 @@ final RTCPPackets p = RTCPPackets.fromByteArray(<byte_array>);
 To create a new packet from a ```DatagramPacket```
 
 ```
+
 final RTCPPackets p = RTCPPackets.romDatagramPacket(<datagram_packet>);
+
 ```
 
 **NB:** This method will throw an ```IllegalArgumentException``` if any of the data supplied would lead to creating of an invalid packet (according to RFC 3550).
@@ -147,14 +169,18 @@ final RTCPPackets p = RTCPPackets.romDatagramPacket(<datagram_packet>);
 To create a new packet from a ```byte[]```
 
 ```
+
 final RTCPPackets p = RTCPPackets.fromByteArray(<byte_array>);
+
 ```
 
 
 To create a new packet from a ```DatagramPacket```
 
 ```
+
 final RTCPPackets p = RTCPPackets.fromDatagramPacket(<datagram_packet>);
+
 ```
 
 

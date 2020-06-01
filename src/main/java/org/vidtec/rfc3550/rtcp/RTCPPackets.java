@@ -308,7 +308,19 @@ public final class RTCPPackets
 	{
 		return new Builder();
 	}
-
+	
+	
+	/**
+	 * Creates a builder to manually build an {@link RTCPPackets}.
+	 * 
+	 * @param packets The collections of packets to add.
+	 * @return The RTCPPackets instance built from the supplied data.
+	 */
+	public static RTCPPackets buildWithPackets(final RTCPPacket<?> ... packets) 
+	{
+		return new Builder().withPackets(packets).build();
+	}
+	
 	
 	/**
 	 * A Builder class to build {@link RTCPPackets} instances.

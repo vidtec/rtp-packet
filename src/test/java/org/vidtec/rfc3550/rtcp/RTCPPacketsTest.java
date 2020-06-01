@@ -327,6 +327,37 @@ public class RTCPPacketsTest
 	}
 
 	
+	public void testCorrectlyCreatesPacketsFromSimplifiedBuilder()
+	{
+
+		RTCPPackets p = RTCPPackets.buildWithPackets(
+						  SenderReportRTCPPacket.builder().withSsrc(20).build(),
+				          ReceiverReportRTCPPacket.builder().withSsrc(20).build(), 
+				          SdesRTCPPacket.builder().build(),
+				          AppRTCPPacket.builder().withAppFields(0, "0000").withSsrc(20).build(),
+				          ByeRTCPPacket.builder().build() );
+			
+		assertEquals(p.packets().size(), 5, "incorrect packet size");
+		assertEquals(p.packets().get(0).payloadType(), PayloadType.SR, "incorrect packet set");
+		assertEquals(p.packets().get(1).payloadType(), PayloadType.RR, "incorrect packet set");
+		assertEquals(p.packets().get(2).payloadType(), PayloadType.SDES, "incorrect packet set");
+		assertEquals(p.packets().get(3).payloadType(), PayloadType.APP, "incorrect packet set");
+		assertEquals(p.packets().get(4).payloadType(), PayloadType.BYE, "incorrect packet set");
+		assertEquals(p.isCompund(), true, "incorrect packet container");
+		assertEquals(p.lengthAsPacket(), 56, "incorrect packet length");
+
+		CountingVisitor v = new CountingVisitor();
+		p.visit(v);
+
+		assertEquals(v.total, 5, "visitor not correct");
+		assertEquals(v.sr, 1, "visitor not correct");
+		assertEquals(v.rr, 1, "visitor not correct");
+		assertEquals(v.sdes, 1, "visitor not correct");
+		assertEquals(v.app, 1, "visitor not correct");
+		assertEquals(v.bye, 1, "visitor not correct");	
+	}
+	
+	
 	public void testCorrectlyValidatesPacketsWhenUsingBuilder()
 	{
 		try
