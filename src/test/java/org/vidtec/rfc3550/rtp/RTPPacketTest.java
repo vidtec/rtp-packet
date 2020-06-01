@@ -576,6 +576,18 @@ public class RTPPacketTest
 		{
 			assertEquals(e.getMessage(), "packet data cannot be null", "wrong validation message");
 		}
+
+		// Tests that [RTP-PACKET-1] https://github.com/vidtec/rtp-packet/issues/1 is resolved.
+		try
+		{
+			RTPPacket.fromDatagramPacket( null );
+			fail("Expected error");
+		}
+		catch(IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "packet cannot be null", "wrong validation message");
+		}
+		
 		try 
 		{ 
 			// Not enough header - v short.
@@ -780,7 +792,55 @@ public class RTPPacketTest
 		assertEquals(p.packetLength(), 16, "packet length should be 16 bytes.");
 		
 		assertEquals(p.asByteArray(), data, "packet data not reformed correctly.");
+	}
+	
+	
+	
+	public void testCanBuildRTPPacketFromDatagramPacketWhereSourceBufferIsOversizedComparedToReadDataCorrectly()
+	{
+		// Tests that [RTP-PACKET-1] https://github.com/vidtec/rtp-packet/issues/1 is resolved.
 		
+		// PCMU with 4 samples - NB: data is greater than packet size 'read'.
+		final byte[] data = { (byte)0x80, 0x00, 0x01, 0x01, 0x01, 0x02, 0x03, 0x04, 0x04, 0x03, 0x02, 0x01, 
+					    		     0x40, 0x40, 0x40, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+		
+		// PCMU with 4 samples - NB: data is greater than packet size 'read'.
+		final byte[] mindata = { (byte)0x80, 0x00, 0x01, 0x01, 0x01, 0x02, 0x03, 0x04, 0x04, 0x03, 0x02, 0x01, 
+					    		     0x40, 0x40, 0x40, 0x40 };
+		
+		// Simulate the reading of a packet - 'read' 16 bytes, but buffer is bigger.
+		DatagramPacket dp = new DatagramPacket(data, 16);
+		
+		final RTPPacket p = RTPPacket.fromDatagramPacket(dp);
+
+		assertEquals(p.version(), 2, "incorrect version decode.");
+		assertTrue(!p.isPadded(), "should not be padded");
+		assertEquals(p.paddedBytesCount(), 0, "should not be padded");
+		assertTrue(!p.hasExtension(), "should not have extension");
+		assertTrue(!p.hasCsrcs(), "should not have contributing sources");
+		assertEquals(p.csrcCount(), 0, "contributing source count should be 0");
+		assertEquals(p.csrcIdentifiers(), new byte[0], "contributing sources should be empty[]");
+	
+		assertTrue(!p.hasMarker(), "should not have marker");
+		assertEquals(p.payloadType(), 0, "payload type should be 0");
+		assertEquals(p.sequenceNumber(), 257, "seq. no should be 0x0101");
+		assertEquals(p.timestamp(), 16909060, "timestamp should be 0x01020304");
+		assertEquals(p.ssrcIdentifier(), 67305985, "ssrc should be 0x04030201");
+	
+		assertEquals(p.extensionProfile(), -1, "extn prof should not be set.");
+		assertEquals(p.extensionLength(), -1, "extn length should not be set.");
+		assertEquals(p.extensionHeaderAsByteArray(), new byte[0], "extn header should not be set.");
+		
+		assertEquals(p.payloadLength(), 4, "payload should be 4 bytes.");
+		assertEquals(p.payloadAsByteArray(), new byte[] { 0x40, 0x40, 0x40, 0x40 }, "invalid payload data");
+		assertEquals(p.payloadAsByteBuffer().compareTo(ByteBuffer.wrap(new byte[] { 0x40, 0x40, 0x40, 0x40 })), 0, "invalid raw payload data");
+
+		assertEquals(p.payloadLengthRaw(), 4, "raw payload should be 4 bytes.");
+		assertEquals(p.payloadRawAsByteArray(), new byte[] { 0x40, 0x40, 0x40, 0x40 }, "invalid raw payload data");
+
+		assertEquals(p.packetLength(), 16, "packet length should be 16 bytes.");
+		
+		assertEquals(p.asByteArray(), mindata, "packet data not reformed correctly.");
 	}
 	
 	
@@ -798,7 +858,6 @@ public class RTPPacketTest
 		assertEquals(d.getLength(), data.length, "incorrect length");
 		assertEquals(d.getData(), data, "incorrect data");
 	}
-	 
 	
 	
 	

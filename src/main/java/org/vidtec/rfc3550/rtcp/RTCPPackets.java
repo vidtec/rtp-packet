@@ -65,18 +65,12 @@ public final class RTCPPackets
 	 * NB: The container will hold one or more RTCP packets, 
 	 *     use isCompound() to determine this.
 	 * 
-	 * @param data The byte[] to decode from.
+	 * @param bb The ByteBuffer to decode from.
 	 * 
 	 * @throws IllegalArgumentException If there is a problem with the validity of the data.
 	 */
-	private RTCPPackets(final byte[] data)
+	private RTCPPackets(final ByteBuffer bb)
 	{
-		if (data == null)
-		{
-			throw new IllegalArgumentException("packet data cannot be null");
-		}
-		
-		final ByteBuffer bb = ByteBuffer.wrap(data);
 
 		// packet must be at least minimum of one header (min 32 bits)
 		if (bb.remaining() < 4)
@@ -272,7 +266,7 @@ public final class RTCPPackets
 	 * NB: FIXME - this method assumes that all packets are in the data[] given
 	 *             it does not handle re-assembly from multiple protocol layer (UDP)
 	 *             frames.    
-	 *             	 * 
+	 *             	  
 	 * @param data DatagramPacket construct a RTCP packet(s) from.
 	 * @return The RTCPPackets instance representing the given data.
 	 * 
@@ -280,7 +274,12 @@ public final class RTCPPackets
 	 */
 	public static RTCPPackets fromByteArray(final byte[] data)
 	{
-		return new RTCPPackets(data);
+		if (data == null)
+		{
+			throw new IllegalArgumentException("packet data cannot be null");
+		}
+		
+		return new RTCPPackets( ByteBuffer.wrap(data) );
 	}
 	
 	
@@ -295,7 +294,12 @@ public final class RTCPPackets
 	 */
 	public static RTCPPackets fromDatagramPacket(final DatagramPacket packet)
 	{
-		return fromByteArray(packet.getData());
+		if (packet == null)
+		{
+			throw new IllegalArgumentException("packet cannot be null");
+		}
+		
+		return new RTCPPackets( ByteBuffer.wrap(packet.getData(), 0, packet.getLength()) );
 	}
 	
 	
