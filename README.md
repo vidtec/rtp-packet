@@ -205,5 +205,7 @@ This project uses [SemVer](http://semver.org/) for versioning. For the versions 
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
+## Thanks
 
+This project acknowledges the EJ Technologies' assistance to the open-source community through it's open-source [java profiler](https://www.ej-technologies.com/products/jprofiler/overview.html) licensing. Thank you.
 
