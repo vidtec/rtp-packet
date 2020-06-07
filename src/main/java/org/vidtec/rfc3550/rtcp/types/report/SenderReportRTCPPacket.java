@@ -177,7 +177,7 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 		
 		bb.put((byte)(VERSION << 6 | (0x1F & blocks().size()) ));
 		bb.put((byte)(0xFF & payloadType().pt));
-		bb.putShort((short)data.length);
+		bb.putShort((short)((data.length / 4) - 1));
 		bb.putInt((int)ssrcSenderIdentifier());
 		
 		bb.putLong(0xFFFFFFFFFFFFFFFFL & ntpTimestamp);
@@ -242,11 +242,11 @@ public class SenderReportRTCPPacket extends ReportRTCPPacket<SenderReportRTCPPac
 		}
 		
 		// Get the length, and validate.
-		final int length = 0xFFFF & bb.getShort();
-		if (bb.remaining() + 4 != length)
+		final int length = (0xFFFF & bb.getShort()) * 4;
+		if (bb.remaining() != length)
 		{
 			// Invalid packet length
-			throw new IllegalArgumentException("Packet states " + length + " bytes length, but actual length is " + (bb.remaining() + 4));
+			throw new IllegalArgumentException("Packet states " + (length + 4) + " bytes length, but actual length is " + (bb.remaining() + 4));
 		}
 		
 		// Get the sender SSRC

@@ -29,7 +29,7 @@ public class AppRTCPPacketTest
 
 	public void testCanCreateEmptyAppPacketFromBuilder()
 	{
-		final byte[] data = { (byte)0x80, (byte)0xCC, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x20, 0x20, 0x20, 0x20 };
+		final byte[] data = { (byte)0x80, (byte)0xCC, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x20, 0x20, 0x20, 0x20 };
 
 		AppRTCPPacket r = AppRTCPPacket.builder()
 				.withData(null)
@@ -75,15 +75,16 @@ public class AppRTCPPacketTest
 	
 	public void testCanCreateSimpleAppPacketFromBuilder()
 	{
-		final byte[] data = { (byte)0x81, (byte)0xCC, 0x00, 0x0D, 0x00, 0x00, 0x00, 0x14, 0x30, 0x30, 0x30, 0x31, 0x01 };
+		final byte[] data = { (byte)0x81, (byte)0xCC, 0x00, 0x03, 0x00, 0x00, 0x00, 0x14, 0x30, 0x30, 0x30, 0x31, 0x01, 0x0, 0x0, 0x0 };
 	
 		AppRTCPPacket r = AppRTCPPacket.builder()
 				.withAppFields(1, "0001")
 				.withSsrc(20)
-				.withData(new byte[] { 0x01 } )
+				.withData(new byte[] { 0x01, 0x0, 0x0, 0x0 } )
 				.build();
+// todo add validation to builder - mst be multipel of 4
 		
-		assertEquals(r.packetLength(), 13, "incorrect packet length");
+		assertEquals(r.packetLength(), 16, "incorrect packet length");
 		assertTrue(r.is(PayloadType.APP), "incorrect payload type");
 		assertTrue(!r.is(PayloadType.SDES), "incorrect payload type");
 		assertTrue(!r.is(null), "incorrect payload type");
@@ -95,7 +96,7 @@ public class AppRTCPPacketTest
 		assertEquals(r.ssrc(), 20, "incorrect ssrc");
 		assertEquals(r.name(), "0001", "incorrect name");
 		assertEquals(r.subType(), 1, "incorrect subtype");
-		assertEquals(r.data(), new byte[] { 0x01 }, "incorrect data");
+		assertEquals(r.data(), new byte[] { 0x01, 0x0, 0x0, 0x0 }, "incorrect data");
 		
 		assertEquals(r.asByteArray(), data, "packet data not reformed correctly.");
 	}
@@ -122,14 +123,14 @@ public class AppRTCPPacketTest
 			AppRTCPPacket.builder()
 					.withAppFields(1, "abcd")
 					.withSsrc(20)
-					.withData(new byte[65535] )
+					.withData(new byte[262144] )
 					.build();
 			
 			fail("Expected error");
 		}
 		catch(IllegalArgumentException e)
 		{
-			assertEquals(e.getMessage(), "app-specific data cannot be > 65523", "wrong validation message");
+			assertEquals(e.getMessage(), "app-specific data cannot be > 262132", "wrong validation message");
 		}
 		try
 		{
@@ -164,7 +165,7 @@ public class AppRTCPPacketTest
 
 	public void testCanCreateEmptyAppPacketFromBuilderAtLimits()
 	{
-		final byte[] data = new byte[65535];
+		final byte[] data = new byte[262144];
 		ByteBuffer bb = ByteBuffer.wrap(data);
 		bb.put((byte)0x9F);
 		bb.put((byte)0xCC);
@@ -175,11 +176,11 @@ public class AppRTCPPacketTest
 		final AppRTCPPacket r = AppRTCPPacket.builder()
 				.withAppFields(0x1F, "0001")
 				.withSsrc(0xFFFFFFFFL)
-				.withData(new byte[65523])
+				.withData(new byte[262132])
 				.build();
 		
 
-		assertEquals(r.packetLength(), 65535, "incorrect packet length");
+		assertEquals(r.packetLength(), 262144, "incorrect packet length");
 		assertTrue(r.is(PayloadType.APP), "incorrect payload type");
 		assertTrue(!r.is(PayloadType.SDES), "incorrect payload type");
 		assertTrue(!r.is(null), "incorrect payload type");
@@ -191,7 +192,7 @@ public class AppRTCPPacketTest
 		assertEquals(r.ssrc(), 0xFFFFFFFFL, "incorrect ssrc");
 		assertEquals(r.name(), "0001", "incorrect name");
 		assertEquals(r.subType(), 31, "incorrect subtype");
-		assertEquals(r.data(), new byte[65523], "incorrect data");		
+		assertEquals(r.data(), new byte[262132], "incorrect data");		
 		
 		assertEquals(r.asByteArray(), data, "packet data not reformed correctly.");
 	}
@@ -202,11 +203,11 @@ public class AppRTCPPacketTest
 	
 	public void testCanCreateSimpleAppPacketFromByteArray()
 	{
-		final byte[] data = { (byte)0x81, (byte)0xCC, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x14, 0x30, 0x30, 0x30, 0x30, 0x01, 0x02 };
+		final byte[] data = { (byte)0x81, (byte)0xCC, 0x00, 0x03, 0x00, 0x00, 0x00, 0x14, 0x30, 0x30, 0x30, 0x30, 0x01, 0x02, 0x00, 0x00 };
 
 		final AppRTCPPacket r = AppRTCPPacket.fromByteArray(data);
 		
-		assertEquals(r.packetLength(), 14, "incorrect packet length");
+		assertEquals(r.packetLength(), 16, "incorrect packet length");
 		assertTrue(r.is(PayloadType.APP), "incorrect payload type");
 		assertTrue(!r.is(PayloadType.SDES), "incorrect payload type");
 		assertTrue(!r.is(null), "incorrect payload type");
@@ -218,7 +219,7 @@ public class AppRTCPPacketTest
 		assertEquals(r.ssrc(), 20, "incorrect ssrc");
 		assertEquals(r.name(), "0000", "incorrect name");
 		assertEquals(r.subType(), 1, "incorrect subtypr");
-		assertEquals(r.data(), new byte[] { 0x01, 0x02 }, "incorrect data");
+		assertEquals(r.data(), new byte[] { 0x01, 0x02, 0x00, 0x00 }, "incorrect data");
 
 		assertEquals(r.asByteArray(), data, "packet data not reformed correctly.");
 	}
@@ -226,7 +227,7 @@ public class AppRTCPPacketTest
 	
 	public void testCanCreateSimpleAppPacketFromByteArrayAtLimits()
 	{
-		final byte[] data = new byte[65535];
+		final byte[] data = new byte[262144];
 		ByteBuffer bb = ByteBuffer.wrap(data);
 		bb.put((byte)0x9F);
 		bb.put((byte)0xCC);
@@ -236,7 +237,7 @@ public class AppRTCPPacketTest
 
 		final AppRTCPPacket r = AppRTCPPacket.fromByteArray(data);
 
-		assertEquals(r.packetLength(), 65535, "incorrect packet length");
+		assertEquals(r.packetLength(), 262144, "incorrect packet length");
 		assertTrue(r.is(PayloadType.APP), "incorrect payload type");
 		assertTrue(!r.is(PayloadType.SDES), "incorrect payload type");
 		assertTrue(!r.is(null), "incorrect payload type");
@@ -248,7 +249,7 @@ public class AppRTCPPacketTest
 		assertEquals(r.ssrc(), 0xFFFFFFFFL, "incorrect ssrc");
 		assertEquals(r.name(), "0001", "incorrect name");
 		assertEquals(r.subType(), 31, "incorrect subtype");
-		assertEquals(r.data(), new byte[65523], "incorrect data");		
+		assertEquals(r.data(), new byte[262132], "incorrect data");		
 		
 		assertEquals(r.asByteArray(), data, "packet data not reformed correctly.");
 	}
@@ -286,7 +287,7 @@ public class AppRTCPPacketTest
 		}
 		try
 		{
-			AppRTCPPacket.fromByteArray(new byte[] { (byte)0x80, (byte)0xC9, 0x00, 0x10, 
+			AppRTCPPacket.fromByteArray(new byte[] { (byte)0x80, (byte)0xC9, 0x00, 0x3, 
 																0x00, 0x00, 0x00, 0x00, 0x20,0x20,0x20,0x20 } );
 			fail("Expected error");
 		}
