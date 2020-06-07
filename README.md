@@ -6,6 +6,8 @@ A library for decoding/manipulation of RTP packets as per RFC 3550.
 
 | Version  | Date  | CHanges
 |---------------|----------------|--------|
+| 2.0.2    |   June 2020   |  Resolve ISSUE-2: issues with RTCP packet length decoding  |
+| 2.0.1    |   June 2020   |  Resolve ISSUE-1: issues with DatagramPacket reading  |
 | 2.0.0    |   May 2020   |  Added support for RTCP as per RFC 3550   |
 | 1.0.0    |   March 2020   |  Initial Release - RTP support as per RFC 3550  |
 
@@ -21,7 +23,7 @@ In order to use this library, simply include the maven dependancy as shown below
 <dependency>
     <groupId>org.vidtec</groupId>
     <artifactId>rtp-packet</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 
@@ -202,7 +204,9 @@ This project uses [SemVer](http://semver.org/) for versioning. For the versions 
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+This project is licensed under the Apacje License 2.0 - see the [LICENSE](LICENSE) file for details
 
+## Thanks
 
+This project acknowledges the EJ Technologies' assistance to the open-source community through it's open-source [java profiler](https://www.ej-technologies.com/products/jprofiler/overview.html) licensing. Thank you.
 
