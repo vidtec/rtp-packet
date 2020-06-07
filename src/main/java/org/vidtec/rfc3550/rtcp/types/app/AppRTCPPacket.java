@@ -67,9 +67,10 @@ public class AppRTCPPacket extends RTCPPacket<AppRTCPPacket>
 			throw new IllegalArgumentException("name must be exactly 4 bytes long");
 		}
 		
-		if (builder.data != null && builder.data.length > 65523)
+		// length is 16bits, so max length is 0xFFFF BUT we remove 2 to account for 8 bytes of header
+		if (builder.data != null && builder.data.length > ((0xFFFF - 2) * 4))
 		{
-			throw new IllegalArgumentException("app-specific data cannot be > 65523");
+			throw new IllegalArgumentException("app-specific data cannot be > " + ((0xFFFF - 2) * 4));
 		}
 		
 		this.subType = builder.subType;
@@ -163,7 +164,7 @@ public class AppRTCPPacket extends RTCPPacket<AppRTCPPacket>
 		
 		bb.put((byte)(VERSION << 6 | (0x1F & subType) ));
 		bb.put((byte)(0xFF & payloadType().pt));
-		bb.putShort((short)data.length);
+		bb.putShort((short)((data.length / 4) - 1));
 
 		bb.putInt((int)(0xFFFFFFFFL & ssrc));
 		bb.put(name.getBytes(Charset.forName("ASCII")));
@@ -219,11 +220,11 @@ public class AppRTCPPacket extends RTCPPacket<AppRTCPPacket>
 		}
 		
 		// Get the length, and validate.
-		final int length = 0xFFFF & bb.getShort();
-		if (bb.remaining() + 4 != length)
+		final int length = (0xFFFF & bb.getShort()) * 4;
+		if (bb.remaining() != length)
 		{
 			// Invalid packet length
-			throw new IllegalArgumentException("Packet states " + length + " bytes length, but actual length is " + (bb.remaining() + 4));
+			throw new IllegalArgumentException("Packet states " + (length + 4) + " bytes length, but actual length is " + (bb.remaining() + 4));
 		}
 
 		// Get the ssrc

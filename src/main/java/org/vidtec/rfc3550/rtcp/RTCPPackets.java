@@ -80,7 +80,7 @@ public final class RTCPPackets
 		
 		// Determine if we THINK this is a compound packet 
 		// i.e. this packet length is more than declared length of first packet.
-		final int firstStatedLength = RTCPPacket.peekStatedLength(bb);
+		final int firstStatedLength = (RTCPPacket.peekStatedLength(bb) + 1) * 4;
 		final boolean isCompound = firstStatedLength < bb.remaining();
 		
 		if (isCompound)
@@ -95,17 +95,12 @@ public final class RTCPPackets
 		
 		while (bb.hasRemaining())
 		{
-
-			final int nextPacketLength = RTCPPacket.peekStatedLength(bb);
+			final int nextPacketLength = (RTCPPacket.peekStatedLength(bb) + 1) * 4;
+			if (bb.remaining() < nextPacketLength)
+			{
+				throw new IllegalArgumentException("At least one packet has a malformed length, not enough data remaining.");
+			}
 			
-// if bb.reamining < packetlength - thorw IAE
-			// if remiaining data - error in packet
-			//		throw new IlleglArugE("Unexpected error - data remaining after packet decodes.");
-
-// At the very least there must be a header remaining ... if not error time.
-			
-
-
 			// Work out the packet type.
 			final PayloadType payloadType = RTCPPacket.peekPayloadType(bb);
 

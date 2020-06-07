@@ -26,7 +26,7 @@ public class SdesRTCPPacketTest
 
 	public void testCanCreateEmptySdesPacketFromBuilder()
 	{
-		final byte[] data = { (byte)0x80, (byte)0xCA, 0x00, 0x04 };
+		final byte[] data = { (byte)0x80, (byte)0xCA, 0x00, 0x00 };
 
 		SdesRTCPPacket r = SdesRTCPPacket.builder()
 				.build();
@@ -94,7 +94,7 @@ public class SdesRTCPPacketTest
 	
 	public void testCanCreateSingleChunkPacketFromBuilder()
 	{
-		final byte[] data = { (byte)0x81, (byte)0xCA, 0x00, 0x10, 
+		final byte[] data = { (byte)0x81, (byte)0xCA, 0x00, 0x03, 
 				                    0x00, 0x00, 0x00, 0x14, 
 				                    0x01, 0x03, 0x30, 0x31, 
 				                    0x32, 0x00, 0x00, 0x00};
@@ -184,7 +184,7 @@ public class SdesRTCPPacketTest
 		}
 		try
 		{
-			SdesRTCPPacket.fromByteArray(new byte[] { (byte)0x80, (byte)0xCA, 0x00, 0x10, 
+			SdesRTCPPacket.fromByteArray(new byte[] { (byte)0x80, (byte)0xCA, 0x00, 0x03, 
 																0x00, 0x00, 0x00, 0x00 } );
 			fail("Expected error");
 		}
@@ -208,7 +208,7 @@ public class SdesRTCPPacketTest
 	
 	public void testCanCreateEmptySdesPacketFromBytes()
 	{
-		final byte[] data = { (byte)0x80, (byte)0xCA, 0x00, 0x04 };
+		final byte[] data = { (byte)0x80, (byte)0xCA, 0x00, 0x00 };
 
 		SdesRTCPPacket r = SdesRTCPPacket.fromByteArray(data);
 		
@@ -269,7 +269,7 @@ public class SdesRTCPPacketTest
 	
 	public void testCanCreateSingleChunkPacketFromBytes()
 	{
-		final byte[] data = { (byte)0x81, (byte)0xCA, 0x00, 0x10, 
+		final byte[] data = { (byte)0x81, (byte)0xCA, 0x00, 0x03, 
 				                    0x00, 0x00, 0x00, 0x14, 
 				                    0x01, 0x03, 0x30, 0x31, 
 				                    0x32, 0x00, 0x00, 0x00};
