@@ -57,7 +57,7 @@
 		<spotbugs.plugin.version.for.fb-contrib>7.4.7</spotbugs.plugin.version.for.fb-contrib>
 		<spotbugs.plugin.version.for.findsecbugs-plugin>1.10.1</spotbugs.plugin.version.for.findsecbugs-plugin>
 
-		<dependency.version.for.testng>7.1.0</dependency.version.for.testng>
+		<dependency.version.for.testng>7.5.1</dependency.version.for.testng>
 		<dependency.version.for.spotbugs>4.0.3</dependency.version.for.spotbugs>
 	</properties>
 
